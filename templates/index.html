@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Absensi Cleaner v2 — Auto Fill Template</title>
+  <meta name="description" content="Upload data fingerprint → otomatis isi template PNS & PPPK"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0a0e1a; --bg2:#111827; --bg3:#1a2235; --bg4:#212b42;
+      --border:#1e2d4a; --border2:#2a3d5e;
+      --accent:#3b82f6; --accent2:#60a5fa; --accent3:#1d4ed8;
+      --green:#10b981; --green2:#34d399; --green3:#064e3b;
+      --red:#ef4444; --red2:#fca5a5; --red3:#450a0a;
+      --amber:#f59e0b; --amber2:#fbbf24;
+      --purple:#8b5cf6; --purple2:#a78bfa;
+      --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+      --radius:14px; --radius2:10px; --radius3:8px;
+      --shadow:0 8px 32px rgba(0,0,0,.45);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 15% 10%, rgba(59,130,246,.06) 0%, transparent 55%),
+                 radial-gradient(ellipse 60% 50% at 85% 85%, rgba(139,92,246,.05) 0%, transparent 55%);
+      pointer-events:none;z-index:0}
+
+    /* ── HEADER ── */
+    .hero{position:relative;z-index:1;text-align:center;padding:48px 24px 32px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;
+      background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.22);
+      color:var(--accent2);padding:5px 16px;border-radius:999px;
+      font-size:11px;font-weight:700;letter-spacing:.6px;margin-bottom:16px;
+      animation:fadeUp .6s ease}
+    .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    h1{font-size:clamp(26px,5vw,44px);font-weight:900;
+      background:linear-gradient(135deg,#fff,var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      line-height:1.15;margin-bottom:10px;animation:fadeUp .6s ease .08s both}
+    .hero-sub{color:var(--text2);font-size:15px;max-width:580px;margin:0 auto;animation:fadeUp .6s ease .16s both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── STEPS BAR ── */
+    .steps{display:flex;align-items:center;justify-content:center;max-width:500px;margin:28px auto 40px;animation:fadeUp .6s ease .24s both;position:relative;z-index:1}
+    .st{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+    .st-c{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:700;border:2px solid var(--border2);background:var(--bg2);color:var(--text3);transition:all .3s}
+    .st.active .st-c{border-color:var(--accent);background:rgba(59,130,246,.12);color:var(--accent2);box-shadow:0 0 0 4px rgba(59,130,246,.08)}
+    .st.done .st-c{border-color:var(--green);background:rgba(16,185,129,.12);color:var(--green)}
+    .st-l{font-size:10px;color:var(--text3);white-space:nowrap;transition:color .3s}
+    .st.active .st-l{color:var(--accent2)} .st.done .st-l{color:var(--green)}
+    .st-ln{flex:1;height:2px;background:var(--border2);margin-top:-18px;transition:background .4s}
+    .st-ln.done{background:var(--green)}
+
+    /* ── CONTAINER ── */
+    .container{max-width:880px;margin:0 auto;padding:0 20px 60px;position:relative;z-index:1}
+
+    /* ── CARD ── */
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:24px;box-shadow:var(--shadow);transition:border-color .3s}
+    .card:hover{border-color:var(--border2)}
+    .card+.card{margin-top:16px}
+    .card-t{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+    .card-s{font-size:12px;color:var(--text2);margin-bottom:16px}
+    .ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .ico-b{background:rgba(59,130,246,.12)} .ico-g{background:rgba(16,185,129,.12)}
+    .ico-r{background:rgba(239,68,68,.12)} .ico-p{background:rgba(139,92,246,.12)}
+    .ico-a{background:rgba(245,158,11,.12)}
+
+    /* ── UPLOAD ZONE ── */
+    .uzone{border:2px dashed var(--border2);border-radius:var(--radius2);padding:32px 16px;text-align:center;
+      cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+    .uzone::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(circle at center,rgba(59,130,246,.03),transparent 70%);opacity:0;transition:opacity .3s}
+    .uzone:hover{border-color:var(--accent)} .uzone:hover::before{opacity:1}
+    .uzone.drag{border-color:var(--accent);background:rgba(59,130,246,.04)}
+    .uzone.done{border-color:var(--green);border-style:solid;background:rgba(16,185,129,.03)}
+    .uz-icon{font-size:28px;margin-bottom:8px;display:block}
+    .uz-title{font-size:14px;font-weight:600;margin-bottom:4px}
+    .uz-sub{font-size:12px;color:var(--text2)}
+    .uz-btn{display:inline-block;margin-top:12px;padding:8px 20px;border-radius:var(--radius3);
+      background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+      transition:background .2s,transform .1s;border:none}
+    .uz-btn:hover{background:var(--accent3)} .uz-btn:active{transform:scale(.97)}
+    .uz-btn.green{background:var(--green)} .uz-btn.red{background:var(--red)}
+    input[type="file"]{display:none}
+
+    /* ── FILE INFO ── */
+    .finfo{display:none;align-items:center;gap:10px;
+      border-radius:var(--radius3);padding:10px 14px;margin-top:12px;font-size:13px}
+    .finfo.show{display:flex}
+    .finfo.ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--green2)}
+    .finfo .fn{font-weight:600} .finfo .fd{font-size:11px;color:var(--text2);margin-top:2px}
+
+    /* ── UPLOAD GRID ── */
+    .ugrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+    @media(max-width:640px){.ugrid{grid-template-columns:1fr}}
+
+    /* ── PROGRESS ── */
+    .pbar{height:5px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:12px;display:none}
+    .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .3s}
+
+    /* ── MATCH TABLE ── */
+    .tbl-wrap{max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius3);margin-top:14px}
+    .tbl-wrap::-webkit-scrollbar{width:5px} .tbl-wrap::-webkit-scrollbar-track{background:var(--bg2)} .tbl-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    thead th{padding:8px 12px;text-align:left;background:var(--bg3);color:var(--text2);font-weight:600;
+      position:sticky;top:0;z-index:2;border-bottom:1px solid var(--border)}
+    tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+    tbody tr:last-child{border-bottom:none} tbody tr:hover{background:rgba(255,255,255,.02)}
+    tbody td{padding:8px 12px;vertical-align:middle}
+
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700}
+    .badge-ok{background:rgba(16,185,129,.15);color:var(--green2);border:1px solid rgba(16,185,129,.25)}
+    .badge-warn{background:rgba(245,158,11,.15);color:var(--amber2);border:1px solid rgba(245,158,11,.25)}
+    .badge-fail{background:rgba(239,68,68,.15);color:var(--red2);border:1px solid rgba(239,68,68,.25)}
+
+    .score{font-weight:800;font-size:11px}
+    .score-high{color:var(--green2)} .score-mid{color:var(--amber2)} .score-low{color:var(--red2)}
+
+    /* ── REVIEW ACTION BUTTONS ── */
+    .rev-group{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px}
+    .btn-rev{padding:4px 9px;border-radius:4px;font-size:11px;font-weight:600;border:1px solid transparent;background:transparent;color:var(--text2);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:4px;user-select:none}
+    .btn-rev:hover{color:#fff;background:rgba(255,255,255,.07)}
+    .btn-rev-inc.active{background:rgba(16,185,129,.22);border-color:rgba(16,185,129,.6);color:#34d399;font-weight:700;box-shadow:0 0 10px rgba(16,185,129,.25)}
+    .btn-rev-ign.active{background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.6);color:#fca5a5;font-weight:700;box-shadow:0 0 10px rgba(239,68,68,.25)}
+
+    /* ── REVIEW TOOLBAR ── */
+    .rev-toolbar{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius3);padding:10px 14px;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+    .rev-toolbar-info{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px}
+    .rev-badge-c{background:rgba(245,158,11,.2);color:var(--amber2);border:1px solid rgba(245,158,11,.35);padding:2px 8px;border-radius:999px;font-weight:700;font-size:11px}
+    .rev-toolbar-btns{display:flex;gap:6px}
+    .btn-tool{padding:5px 11px;border-radius:var(--radius3);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid transparent}
+    .btn-tool-inc{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35);color:var(--green2)}
+    .btn-tool-inc:hover{background:rgba(16,185,129,.28);border-color:var(--green)}
+    .btn-tool-ign{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);color:var(--red2)}
+    .btn-tool-ign:hover{background:rgba(239,68,68,.28);border-color:var(--red)}
+
+    /* ── STATS ── */
+    .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+    .scard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius3);padding:14px;text-align:center}
+    .snum{font-size:28px;font-weight:900} .slbl{font-size:11px;color:var(--text2);margin-top:2px}
+
+    /* ── TABS ── */
+    .tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border)}
+    .tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;
+      border-bottom:2px solid transparent;transition:all .2s}
+    .tab:hover{color:var(--text2)} .tab.active{color:var(--accent2);border-bottom-color:var(--accent)}
+    .tab-pane{display:none} .tab-pane.active{display:block}
+
+    /* ── BUTTONS ── */
+    .btn-main{width:100%;padding:13px;border:none;border-radius:var(--radius3);
+      font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;
+      display:flex;align-items:center;justify-content:center;gap:10px}
+    .btn-blue{background:linear-gradient(135deg,var(--accent3),var(--accent));color:#fff}
+    .btn-blue:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.3)}
+    .btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff}
+    .btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.3)}
+    .btn-main:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+    .btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);
+      width:100%;padding:10px;border-radius:var(--radius3);font-size:13px;font-weight:500;
+      cursor:pointer;transition:all .2s;margin-top:10px}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent2)}
+
+    .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.2);
+      border-top-color:#fff;animation:spin .6s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── SECTION VISIBILITY ── */
+    .sec{display:none;animation:fadeUp .4s ease} .sec.show{display:block}
+
+    /* ── TOAST ── */
+    .toast-w{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:10px 16px;border-radius:var(--radius3);font-size:12px;font-weight:500;
+      box-shadow:var(--shadow);animation:slideIn .25s ease;max-width:300px}
+    @keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+    .toast-ok{background:var(--green3);color:var(--green2);border-left:3px solid var(--green)}
+    .toast-err{background:var(--red3);color:var(--red2);border-left:3px solid var(--red)}
+    .toast-info{background:#1e3a5f;color:var(--accent2);border-left:3px solid var(--accent)}
+
+    /* ── FOOTER ── */
+    .footer{text-align:center;padding:20px;color:var(--text3);font-size:11px;position:relative;z-index:1}
+  </style>
+</head>
+<body>
+<div class="toast-w" id="toastW"></div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span>FINGERPRINT ATTENDANCE CLEANER v2</div>
+  <h1>Absensi Cleaner</h1>
+  <p class="hero-sub">Upload data fingerprint + template PNS & PPPK → sistem otomatis bersihkan, cocokkan, dan isi jam masuk/keluar ke template.</p>
+</div>
+
+<!-- ═══ STEPS ═══ -->
+<div class="steps">
+  <div class="st active" id="s1"><div class="st-c">1</div><div class="st-l">Upload</div></div>
+  <div class="st-ln" id="ln12"></div>
+  <div class="st" id="s2"><div class="st-c">2</div><div class="st-l">Preview</div></div>
+  <div class="st-ln" id="ln23"></div>
+  <div class="st" id="s3"><div class="st-c">3</div><div class="st-l">Download</div></div>
+</div>
+
+<div class="container">
+
+  <!-- ═══ SECTION 1: UPLOAD ═══ -->
+  <div class="card sec show" id="secUpload">
+    <div class="card-t"><div class="ico ico-b">📂</div>Upload File</div>
+    <p class="card-s">Upload 3 file: data fingerprint + template PNS + template PPPK. Minimal 1 template.</p>
+
+    <!-- Fingerprint upload -->
+    <div class="uzone" id="zFp" onclick="document.getElementById('fFp').click()">
+      <span class="uz-icon">🖐️</span>
+      <div class="uz-title">Data Absensi Fingerprint</div>
+      <div class="uz-sub">Format: .xls atau .xlsx dari mesin fingerprint</div>
+      <button class="uz-btn" type="button">Pilih File</button>
+      <input type="file" id="fFp" accept=".xls,.xlsx,.xlsm"/>
+    </div>
+    <div class="finfo" id="iFp"><span>✅</span><div><div class="fn" id="nFp">-</div><div class="fd" id="dFp">-</div></div></div>
+    <div class="pbar" id="pFp"><div class="pfill" id="pfFp"></div></div>
+
+    <!-- Template uploads -->
+    <div class="ugrid">
+      <div>
+        <div class="uzone" id="zPns" onclick="document.getElementById('fPns').click()" style="border-color:rgba(16,185,129,.3)">
+          <span class="uz-icon">🟢</span>
+          <div class="uz-title">Template PNS</div>
+          <div class="uz-sub">File .xlsx yang berisi sheet Database & Input Data Absen</div>
+          <button class="uz-btn green" type="button">Pilih File PNS</button>
+          <input type="file" id="fPns" accept=".xlsx,.xlsm"/>
+        </div>
+        <div class="finfo" id="iPns"><span>✅</span><div><div class="fn" id="nPns">-</div><div class="fd" id="dPns">-</div></div></div>
+      </div>
+      <div>
+        <div class="uzone" id="zPppk" onclick="document.getElementById('fPppk').click()" style="border-color:rgba(239,68,68,.3)">
+          <span class="uz-icon">🔴</span>
+          <div class="uz-title">Template PPPK</div>
+          <div class="uz-sub">File .xlsx yang berisi sheet Database & Input Data Absen</div>
+          <button class="uz-btn red" type="button">Pilih File PPPK</button>
+          <input type="file" id="fPppk" accept=".xlsx,.xlsm"/>
+        </div>
+        <div class="finfo" id="iPppk"><span>✅</span><div><div class="fn" id="nPppk">-</div><div class="fd" id="dPppk">-</div></div></div>
+      </div>
+    </div>
+
+    <button class="btn-main btn-blue" id="btnPreview" style="margin-top:20px" onclick="doPreview()" disabled>
+      <span>Lihat Preview Matching</span><div class="spinner" id="spPrev"></div>
+    </button>
+  </div>
+
+  <!-- ═══ SECTION 2: PREVIEW ═══ -->
+  <div class="card sec" id="secPreview">
+    <div class="card-t"><div class="ico ico-p">📊</div>Hasil Pencocokan Nama</div>
+    <p class="card-s">Sistem mencocokkan nama di fingerprint dengan nama di template. Hijau = cocok, kuning = mirip, merah = tidak ditemukan.</p>
+
+    <div class="sgrid" id="statsGrid">
+      <div class="scard"><div class="snum" style="color:var(--accent2)" id="xAll">0</div><div class="slbl">Pegawai Fingerprint</div></div>
+      <div class="scard"><div class="snum" style="color:var(--green2)" id="xPns">0</div><div class="slbl">Cocok PNS</div></div>
+      <div class="scard"><div class="snum" style="color:var(--green2)" id="xPppk">0</div><div class="slbl">Cocok PPPK</div></div>
+      <div class="scard"><div class="snum" style="color:var(--amber2)" id="xRev">0</div><div class="slbl">Perlu Review</div></div>
+      <div class="scard"><div class="snum" style="color:var(--text3)" id="xUnm">0</div><div class="slbl">Tidak Cocok</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="tabPns" onclick="switchTab(this)">🟢 PNS</div>
+      <div class="tab" data-tab="tabPppk" onclick="switchTab(this)">🔴 PPPK</div>
+      <div class="tab" data-tab="tabUnm" onclick="switchTab(this)">⚪ Tidak Cocok</div>
+    </div>
+
+    <!-- PNS TAB -->
+    <div class="tab-pane active" id="tabPns">
+      <div class="rev-toolbar" id="barPns" style="display:none">
+        <div class="rev-toolbar-info">
+          <span>⚠️</span>
+          <span>Ada <strong id="countPns" class="rev-badge-c">0</strong> nama berstatus Perlu Review:</span>
+        </div>
+        <div class="rev-toolbar-btns">
+          <button type="button" class="btn-tool btn-tool-inc" onclick="bulkDecision('PNS', 'include')">✅ Masukkan Semua</button>
+          <button type="button" class="btn-tool btn-tool-ign" onclick="bulkDecision('PNS', 'ignore')">❌ Abaikan Semua</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th style="width:36px">#</th>
+        <th>Nama di Template</th>
+        <th>Nama di Fingerprint</th>
+        <th style="width:55px;text-align:center">Skor</th>
+        <th style="width:115px;text-align:center">Status</th>
+        <th style="width:45px;text-align:center">Hari</th>
+        <th style="width:175px;text-align:center">Aksi / Pilihan</th>
+      </tr></thead><tbody id="tbPns"></tbody></table></div>
+    </div>
+
+    <!-- PPPK TAB -->
+    <div class="tab-pane" id="tabPppk">
+      <div class="rev-toolbar" id="barPppk" style="display:none">
+        <div class="rev-toolbar-info">
+          <span>⚠️</span>
+          <span>Ada <strong id="countPppk" class="rev-badge-c">0</strong> nama berstatus Perlu Review:</span>
+        </div>
+        <div class="rev-toolbar-btns">
+          <button type="button" class="btn-tool btn-tool-inc" onclick="bulkDecision('PPPK', 'include')">✅ Masukkan Semua</button>
+          <button type="button" class="btn-tool btn-tool-ign" onclick="bulkDecision('PPPK', 'ignore')">❌ Abaikan Semua</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th style="width:36px">#</th>
+        <th>Nama di Template</th>
+        <th>Nama di Fingerprint</th>
+        <th style="width:55px;text-align:center">Skor</th>
+        <th style="width:115px;text-align:center">Status</th>
+        <th style="width:45px;text-align:center">Hari</th>
+        <th style="width:175px;text-align:center">Aksi / Pilihan</th>
+      </tr></thead><tbody id="tbPppk"></tbody></table></div>
+    </div>
+
+    <!-- UNMATCHED TAB -->
+    <div class="tab-pane" id="tabUnm">
+      <p style="font-size:12px;color:var(--text2);padding:10px 0">Pegawai fingerprint yang tidak ditemukan di template PNS maupun PPPK:</p>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th style="width:70px">FP ID</th><th>Nama di Fingerprint</th>
+      </tr></thead><tbody id="tbUnm"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 3: DOWNLOAD ═══ -->
+  <div class="card sec" id="secDownload">
+    <div class="card-t"><div class="ico ico-a">⬇️</div>Download Hasil</div>
+    <p class="card-s">Template akan diisi dengan jam masuk & keluar dari data fingerprint. File asli tidak berubah.</p>
+
+    <div id="dlRecap" style="display:none;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:var(--radius3);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--accent2)">
+    </div>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius3);padding:14px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+      📋 <strong style="color:var(--text)">Yang diisi program:</strong> kolom <strong style="color:var(--green)">M</strong> (Masuk) dan <strong style="color:var(--red2)">P</strong> (Pulang) di sheet "Input Data Absen"<br/>
+      📋 <strong style="color:var(--text)">Yang TIDAK diubah:</strong> kolom K (Keterangan), formula, format, dan sheet lainnya
+    </div>
+
+    <button class="btn-main btn-green" id="btnDownload" onclick="doDownload()">
+      <span>⬇️ Download ZIP (PNS + PPPK)</span><div class="spinner" id="spDl"></div>
+    </button>
+    <button class="btn-ghost" onclick="resetAll()">🔄 Proses File Lain</button>
+  </div>
+
+</div>
+
+<div class="footer">Absensi Cleaner v2 · File asli tidak diubah · Jam Masuk & Keluar = waktu terawal</div>
+
+<script>
+/* ── State ── */
+let fpOk=false, pnsOk=false, pppkOk=false;
+let previewData = null;
+let userDecisions = { PNS: {}, PPPK: {} };
+let saveTimer = null;
+
+/* ── Toast ── */
+function toast(m,t='info'){
+  const w=document.getElementById('toastW');
+  const d=document.createElement('div');
+  d.className='toast toast-'+(t==='success'?'ok':t==='error'?'err':'info');
+  d.textContent=m;
+  w.appendChild(d);
+  setTimeout(()=>d.remove(),4000);
+}
+
+/* ── Steps ── */
+function goStep(n){
+  for(let i=1;i<=3;i++){
+    const s=document.getElementById('s'+i);
+    s.classList.toggle('active',i===n);
+    s.classList.toggle('done',i<n);
+  }
+  for(let i=1;i<=2;i++){
+    document.getElementById('ln'+i+(i+1)).classList.toggle('done',i<n);
+  }
+}
+
+/* ── Show sections ── */
+function showSec(...ids){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  ids.forEach(id=>document.getElementById(id).classList.add('show'));
+}
+
+/* ── Tabs ── */
+function switchTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(el.dataset.tab).classList.add('active');
+}
+
+/* ── Check ready ── */
+function checkReady(){
+  document.getElementById('btnPreview').disabled=!(fpOk&&(pnsOk||pppkOk));
+}
+
+/* ── Drag/drop helpers ── */
+function setupDrop(zoneId, handler){
+  const z=document.getElementById(zoneId);
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag')});
+  z.addEventListener('dragleave',()=>z.classList.remove('drag'));
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag');if(e.dataTransfer.files[0])handler(e.dataTransfer.files[0])});
+}
+
+/* ── Upload fingerprint ── */
+function uploadFp(file){
+  const bar=document.getElementById('pFp');const fill=document.getElementById('pfFp');
+  bar.style.display='block';fill.style.width='0';
+  let p=0;const t=setInterval(()=>{p=Math.min(p+Math.random()*18,85);fill.style.width=p+'%'},100);
+  const fd=new FormData();fd.append('file',file);
+  fetch('/upload-fingerprint',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{
+    clearInterval(t);fill.style.width='100%';setTimeout(()=>bar.style.display='none',600);
+    if(d.error){toast(d.error,'error');return}
+    document.getElementById('nFp').textContent=d.filename;
+    document.getElementById('dFp').textContent=`${d.employees} pegawai · ${d.raw_rows.toLocaleString()} baris mentah · ${d.clean_records} record bersih`;
+    document.getElementById('iFp').classList.add('show');document.getElementById('iFp').classList.add('ok');
+    document.getElementById('zFp').classList.add('done');
+    fpOk=true;checkReady();toast('File fingerprint berhasil diupload!','success');
+  }).catch(e=>{clearInterval(t);bar.style.display='none';toast('Error: '+e.message,'error')});
+}
+
+/* ── Upload template ── */
+function uploadTpl(file,type){
+  const fd=new FormData();fd.append('file',file);fd.append('type',type);
+  const idPfx=type==='PNS'?'Pns':'Pppk';
+  fetch('/upload-template',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{
+    if(d.error){toast(d.error,'error');return}
+    document.getElementById('n'+idPfx).textContent=d.filename;
+    document.getElementById('d'+idPfx).textContent=`${d.employees} pegawai ditemukan`;
+    document.getElementById('i'+idPfx).classList.add('show');document.getElementById('i'+idPfx).classList.add('ok');
+    document.getElementById('z'+idPfx).classList.add('done');
+    if(type==='PNS')pnsOk=true;else pppkOk=true;
+    checkReady();toast(`Template ${type} berhasil diupload!`,'success');
+  }).catch(e=>toast('Error: '+e.message,'error'));
+}
+
+/* ── Wire up file inputs ── */
+document.getElementById('fFp').addEventListener('change',e=>{if(e.target.files[0])uploadFp(e.target.files[0])});
+document.getElementById('fPns').addEventListener('change',e=>{if(e.target.files[0])uploadTpl(e.target.files[0],'PNS')});
+document.getElementById('fPppk').addEventListener('change',e=>{if(e.target.files[0])uploadTpl(e.target.files[0],'PPPK')});
+setupDrop('zFp',f=>uploadFp(f));
+setupDrop('zPns',f=>uploadTpl(f,'PNS'));
+setupDrop('zPppk',f=>uploadTpl(f,'PPPK'));
+
+/* ── Preview ── */
+function doPreview(){
+  const btn=document.getElementById('btnPreview');const sp=document.getElementById('spPrev');
+  btn.disabled=true;sp.style.display='block';
+  fetch('/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json()).then(d=>{
+    btn.disabled=false;sp.style.display='none';
+    if(d.error){toast(d.error,'error');checkReady();return}
+    renderPreview(d);
+    goStep(2);showSec('secUpload','secPreview','secDownload');
+    document.getElementById('secPreview').scrollIntoView({behavior:'smooth'});
+    toast('Preview siap!','success');
+  }).catch(e=>{btn.disabled=false;sp.style.display='none';toast('Error: '+e.message,'error');checkReady()});
+}
+
+function renderPreview(d){
+  previewData = d;
+
+  // Restore keputusan jika ada
+  if(d.saved_decisions){
+    userDecisions = {
+      PNS: d.saved_decisions.PNS || d.saved_decisions.pns || {},
+      PPPK: d.saved_decisions.PPPK || d.saved_decisions.pppk || {}
+    };
+  }
+
+  function buildRow(m, tplType){
+    const scls=m.score>=80?'score-high':m.score>=40?'score-mid':'score-low';
+    let statusBadge = '';
+    let actionCell = '';
+
+    if(!m.fp_id){
+      statusBadge = '<span class="badge badge-fail">Tidak Cocok</span>';
+      actionCell = '<span style="color:var(--text3);font-size:11px">—</span>';
+    } else if(m.needs_review){
+      const dec = userDecisions[tplType] ? userDecisions[tplType][m.tpl_row] : null;
+      const isInc = dec === 'include';
+      const isIgn = dec === 'ignore';
+
+      if(isInc){
+        statusBadge = `<span class="badge badge-ok" id="badge_${tplType}_${m.tpl_row}">✅ Dimasukkan</span>`;
+      } else if(isIgn){
+        statusBadge = `<span class="badge badge-fail" id="badge_${tplType}_${m.tpl_row}">❌ Diabaikan</span>`;
+      } else {
+        statusBadge = `<span class="badge badge-warn" id="badge_${tplType}_${m.tpl_row}">⚠️ Perlu Review</span>`;
+      }
+
+      actionCell = `
+        <div class="rev-group" id="group_${tplType}_${m.tpl_row}">
+          <button type="button" class="btn-rev btn-rev-inc ${isInc ? 'active' : ''}" 
+                  onclick="setDecision('${tplType}', ${m.tpl_row}, 'include', '${encodeURIComponent(m.tpl_name)}')"
+                  title="Gunakan data fingerprint untuk pegawai ini saat export">
+            ✅ Masukkan
+          </button>
+          <button type="button" class="btn-rev btn-rev-ign ${isIgn ? 'active' : ''}" 
+                  onclick="setDecision('${tplType}', ${m.tpl_row}, 'ignore', '${encodeURIComponent(m.tpl_name)}')"
+                  title="Abaikan dan jangan isi data fingerprint untuk pegawai ini">
+            ❌ Abaikan
+          </button>
+        </div>
+      `;
+    } else {
+      statusBadge = '<span class="badge badge-ok">✅ Auto-Fill</span>';
+      actionCell = '<span style="font-size:11px;color:var(--text3)">Otomatis (Skor ≥65)</span>';
+    }
+
+    return `<tr id="row_${tplType}_${m.tpl_row}">
+      <td style="color:var(--text3)">${m.tpl_no}</td>
+      <td style="font-weight:600">${m.tpl_name}</td>
+      <td>${m.fp_name||'<span style="color:var(--text3)">— tidak ditemukan</span>'}</td>
+      <td style="text-align:center"><span class="score ${scls}">${m.score||'—'}</span></td>
+      <td style="text-align:center">${statusBadge}</td>
+      <td style="text-align:center">${m.days_with_data||'—'}</td>
+      <td style="text-align:center">${actionCell}</td>
+    </tr>`;
+  }
+
+  // PNS tab
+  const tbPns=document.getElementById('tbPns');tbPns.innerHTML='';
+  let pnsRevCount = 0;
+  if(d.pns){
+    d.pns.matches.forEach(m=>{
+      if(m.fp_id && m.needs_review) pnsRevCount++;
+      tbPns.innerHTML+=buildRow(m, 'PNS');
+    });
+  } else {
+    tbPns.innerHTML='<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:20px">Template PNS tidak diupload</td></tr>';
+  }
+  const barPns = document.getElementById('barPns');
+  if(barPns){
+    if(pnsRevCount > 0){
+      barPns.style.display = 'flex';
+      document.getElementById('countPns').textContent = pnsRevCount;
+    } else {
+      barPns.style.display = 'none';
+    }
+  }
+
+  // PPPK tab
+  const tbPppk=document.getElementById('tbPppk');tbPppk.innerHTML='';
+  let pppkRevCount = 0;
+  if(d.pppk){
+    d.pppk.matches.forEach(m=>{
+      if(m.fp_id && m.needs_review) pppkRevCount++;
+      tbPppk.innerHTML+=buildRow(m, 'PPPK');
+    });
+  } else {
+    tbPppk.innerHTML='<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:20px">Template PPPK tidak diupload</td></tr>';
+  }
+  const barPppk = document.getElementById('barPppk');
+  if(barPppk){
+    if(pppkRevCount > 0){
+      barPppk.style.display = 'flex';
+      document.getElementById('countPppk').textContent = pppkRevCount;
+    } else {
+      barPppk.style.display = 'none';
+    }
+  }
+
+  // Unmatched tab
+  const tbUnm=document.getElementById('tbUnm');tbUnm.innerHTML='';
+  if(d.unmatched_fp&&d.unmatched_fp.length>0){
+    d.unmatched_fp.forEach(u=>{
+      tbUnm.innerHTML+=`<tr><td style="font-weight:600;color:var(--accent2)">${u.fp_id}</td><td>${u.fp_name}</td></tr>`;
+    });
+  } else {
+    tbUnm.innerHTML='<tr><td colspan="2" style="color:var(--green);text-align:center;padding:20px">✅ Semua pegawai tercocokkan!</td></tr>';
+  }
+
+  // Update statistics
+  updateStats();
+
+  // Peringatan toast jika ada review
+  const totalRev = pnsRevCount + pppkRevCount;
+  if(totalRev > 0){
+    toast(`⚠️ Ada ${totalRev} nama berstatus "Perlu Review". Gunakan tombol Masukkan / Abaikan untuk menentukan.`, 'info');
+  }
+}
+
+/* ── Decision Handling ── */
+function setDecision(tplType, row, choice, encName){
+  if(!userDecisions[tplType]) userDecisions[tplType] = {};
+  userDecisions[tplType][row] = choice;
+
+  if(encName){
+    const empName = decodeURIComponent(encName);
+    userDecisions[tplType][empName] = choice;
+  }
+
+  updateRowUI(tplType, row, choice);
+  updateStats();
+  saveDecisionsToServer();
+
+  if(choice === 'include'){
+    toast(`✅ Pilihan tersimpan: Data pegawai akan dimasukkan ke Excel`, 'success');
+  } else {
+    toast(`❌ Pilihan tersimpan: Data pegawai diabaikan`, 'info');
+  }
+}
+
+function updateRowUI(tplType, row, choice){
+  const badge = document.getElementById(`badge_${tplType}_${row}`);
+  const group = document.getElementById(`group_${tplType}_${row}`);
+  if(!badge || !group) return;
+
+  const btnInc = group.querySelector('.btn-rev-inc');
+  const btnIgn = group.querySelector('.btn-rev-ign');
+
+  if(choice === 'include'){
+    badge.className = 'badge badge-ok';
+    badge.textContent = '✅ Dimasukkan';
+    if(btnInc) btnInc.classList.add('active');
+    if(btnIgn) btnIgn.classList.remove('active');
+  } else if(choice === 'ignore'){
+    badge.className = 'badge badge-fail';
+    badge.textContent = '❌ Diabaikan';
+    if(btnInc) btnInc.classList.remove('active');
+    if(btnIgn) btnIgn.classList.add('active');
+  }
+}
+
+function bulkDecision(tplType, choice){
+  if(!previewData) return;
+  const key = tplType.toLowerCase();
+  if(!previewData[key]) return;
+
+  if(!userDecisions[tplType]) userDecisions[tplType] = {};
+
+  let count = 0;
+  previewData[key].matches.forEach(m => {
+    if(m.fp_id && m.needs_review){
+      userDecisions[tplType][m.tpl_row] = choice;
+      userDecisions[tplType][m.tpl_name] = choice;
+      updateRowUI(tplType, m.tpl_row, choice);
+      count++;
+    }
+  });
+
+  updateStats();
+  saveDecisionsToServer();
+
+  if(choice === 'include'){
+    toast(`✅ ${count} nama ${tplType} disetujui untuk dimasukkan!`, 'success');
+  } else {
+    toast(`❌ ${count} nama ${tplType} diatur untuk diabaikan!`, 'info');
+  }
+}
+
+function saveDecisionsToServer(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    fetch('/save-decisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decisions: userDecisions })
+    }).catch(e => console.warn('Sync decisions error:', e));
+  }, 250);
+}
+
+function updateStats(){
+  if(!previewData) return;
+
+  let pnsAuto=0, pnsInc=0, pnsIgn=0, pnsPending=0;
+  let pppkAuto=0, pppkInc=0, pppkIgn=0, pppkPending=0;
+
+  if(previewData.pns){
+    previewData.pns.matches.forEach(m => {
+      if(!m.fp_id) return;
+      if(!m.needs_review && m.score >= 65){
+        pnsAuto++;
+      } else if(m.needs_review){
+        const dec = userDecisions.PNS ? userDecisions.PNS[m.tpl_row] : null;
+        if(dec === 'include') pnsInc++;
+        else if(dec === 'ignore') pnsIgn++;
+        else pnsPending++;
+      }
+    });
+  }
+
+  if(previewData.pppk){
+    previewData.pppk.matches.forEach(m => {
+      if(!m.fp_id) return;
+      if(!m.needs_review && m.score >= 65){
+        pppkAuto++;
+      } else if(m.needs_review){
+        const dec = userDecisions.PPPK ? userDecisions.PPPK[m.tpl_row] : null;
+        if(dec === 'include') pppkInc++;
+        else if(dec === 'ignore') pppkIgn++;
+        else pppkPending++;
+      }
+    });
+  }
+
+  const totalPnsFilled = pnsAuto + pnsInc;
+  const totalPppkFilled = pppkAuto + pppkInc;
+  const totalPendingReview = pnsPending + pppkPending;
+  const totalUnmatched = (previewData.unmatched_fp ? previewData.unmatched_fp.length : 0) + pnsIgn + pppkIgn;
+  const totalAll = totalPnsFilled + totalPppkFilled + totalPendingReview + totalUnmatched;
+
+  document.getElementById('xAll').textContent = totalAll;
+  document.getElementById('xPns').textContent = totalPnsFilled;
+  document.getElementById('xPppk').textContent = totalPppkFilled;
+  document.getElementById('xRev').textContent = totalPendingReview;
+  document.getElementById('xUnm').textContent = totalUnmatched;
+
+  // Recap banner pada bagian Download
+  const dlRecap = document.getElementById('dlRecap');
+  if(dlRecap){
+    dlRecap.style.display = 'block';
+    const totalIncludedReview = pnsInc + pppkInc;
+    if(totalIncludedReview > 0){
+      dlRecap.innerHTML = `✨ <strong>Siap Download:</strong> ${pnsAuto + pppkAuto} pegawai otomatis (Auto-Fill) + <strong>${totalIncludedReview} pegawai hasil review yang Anda pilih "Masukkan"</strong> akan diisi ke file Excel.`;
+    } else {
+      dlRecap.innerHTML = `✨ <strong>Siap Download:</strong> ${pnsAuto + pppkAuto} pegawai otomatis (Auto-Fill) akan diisi ke file Excel.`;
+    }
+  }
+}
+
+/* ── Download ── */
+function doDownload(){
+  const btn=document.getElementById('btnDownload');const sp=document.getElementById('spDl');
+  btn.disabled=true;sp.style.display='block';
+
+  // Kirim keputusan user langsung di request body untuk menjamin 100% konsistensi
+  fetch('/process',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ decisions: userDecisions })
+  }).then(async r=>{
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Server error')}
+    return r.blob();
+  }).then(blob=>{
+    btn.disabled=false;sp.style.display='none';
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='Absensi_Bersih.zip';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);URL.revokeObjectURL(url);
+    goStep(3);toast('✅ File Excel berhasil didownload dengan keputusan review Anda!','success');
+  }).catch(e=>{btn.disabled=false;sp.style.display='none';toast('Gagal: '+e.message,'error')});
+}
+
+/* ── Reset ── */
+function resetAll(){
+  fpOk=pnsOk=pppkOk=false;
+  previewData = null;
+  userDecisions = { PNS: {}, PPPK: {} };
+  ['fFp','fPns','fPppk'].forEach(id=>document.getElementById(id).value='');
+  ['iFp','iPns','iPppk'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('show','ok')});
+  ['zFp','zPns','zPppk'].forEach(id=>document.getElementById(id).classList.remove('done'));
+  document.getElementById('pFp').style.display='none';
+  document.getElementById('btnPreview').disabled=true;
+  goStep(1);showSec('secUpload');window.scrollTo({top:0,behavior:'smooth'});toast('Siap untuk file baru!','info');
+}
+</script>
+</body>
+</html>
