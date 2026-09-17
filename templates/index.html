@@ -1480,8 +1480,8 @@
     </div>
 
     <p class="card-s">
-      Sistem mencocokkan nama di fingerprint dengan nama di template.
-      Hijau = cocok, kuning = mirip, merah = tidak ditemukan.
+      Sistem mencocokkan nama di template dengan data fingerprint dan WFH.
+      Hijau = cocok otomatis, kuning = perlu review (pilih Masukkan/Abaikan), merah = tidak ditemukan.
     </p>
 
     <div class="sgrid" id="statsGrid">
@@ -1652,7 +1652,7 @@
               </th>
 
               <th>
-                Nama di Fingerprint
+                Nama di Fingerprint / WFH
               </th>
 
               <th style="width:55px;text-align:center">
@@ -1752,7 +1752,7 @@
               </th>
 
               <th>
-                Nama di Fingerprint
+                Nama di Fingerprint / WFH
               </th>
 
               <th style="width:55px;text-align:center">
@@ -2894,7 +2894,7 @@ function renderPreview(d){
         '<span class="badge badge-ok">✅ Auto-Fill</span>';
 
       actionCell=
-        '<span style="font-size:11px;color:var(--text3)">Otomatis (Skor ≥65)</span>';
+        '<span style="font-size:11px;color:var(--text3)">Otomatis (Skor ≥80)</span>';
 
     }
 
@@ -2913,8 +2913,9 @@ function renderPreview(d){
 
         <td>
           ${
-            m.fp_name ||
-            '<span style="color:var(--text3)">— tidak ditemukan</span>'
+            m.fp_name
+              ? `${m.fp_name} ${m.source ? '<span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;' + (m.source==='WFH' ? 'background:rgba(59,130,246,.12);color:#2563eb;border:1px solid rgba(59,130,246,.25)' : 'background:rgba(16,185,129,.12);color:#059669;border:1px solid rgba(16,185,129,.25)') + '">' + m.source + '</span>' : ''}`
+              : '<span style="color:var(--text3)">— tidak ditemukan</span>'
           }
         </td>
 

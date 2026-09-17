@@ -26,8 +26,9 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "upload
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Auto-match threshold: skor >= ini → langsung diisi ke template
-# 65 dipilih agar kasus typo seperti "ria mustikah" vs "RIA MUSTIKA" tetap ter-match
-AUTO_MATCH_THRESHOLD = 65
+# 80 dipilih agar hanya yang benar-benar yakin yang auto-fill,
+# sisanya masuk 'Perlu Review' agar user bisa pilih sendiri (Masukkan / Abaikan)
+AUTO_MATCH_THRESHOLD = 80
 
 
 # ══════════════════════════════════════════════════════════════
@@ -45,6 +46,27 @@ def norm_id(raw):
     return s
 
 
+# Singkatan gelar akademik Indonesia yang sering muncul di data WFH (Google Forms)
+# Difilter agar tidak mengganggu skor matching nama
+GELAR_WORDS = {
+    # Sarjana (S1)
+    "SH", "SE", "SI", "SM", "SA", "SP", "ST",
+    "PD", "AG", "IP", "HI", "HUM", "AB",
+    "KOM", "PSI", "MAT", "SOS", "KED", "KEP",
+    "STAT", "IKOM", "IAN", "STP", "SST",
+    # Master (S2)
+    "MM", "MH", "MA", "MT", "MSI", "MSC",
+    # Diploma
+    "MD", "AK",
+    # Doktor
+    "DR",
+    # Gelar umum
+    "TR", "STR",
+    # Gelar profesi
+    "AP", "SAP",
+}
+
+
 def norm_name(name):
     """Normalize name for matching: uppercase, strip punctuation, collapse spaces."""
     s = str(name).upper().strip()
@@ -54,8 +76,15 @@ def norm_name(name):
 
 
 def name_words(name):
-    """Get list of words from normalized name (min 2 chars)."""
-    return [w for w in norm_name(name).split() if len(w) >= 2]
+    """
+    Get list of words from normalized name (min 2 chars).
+    Filter out common academic title abbreviations (gelar)
+    agar tidak mengganggu skor fuzzy matching.
+    """
+    return [
+        w for w in norm_name(name).split()
+        if len(w) >= 2 and w not in GELAR_WORDS
+    ]
 
 
 def match_score(fp_name, tpl_name):
@@ -913,12 +942,18 @@ def preview():
                 # 4-tuple: fp_id, score, match_type, needs_review
                 fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
 
+                # Tentukan sumber data: Fingerprint atau WFH
+                source = ""
+                if fp_id:
+                    source = "WFH" if str(fp_id).startswith("WFH_") else "Fingerprint"
+
                 match_info = {
                     "tpl_no":       emp["no"],
                     "tpl_row":      emp["row"],
                     "tpl_name":     emp["name"],
                     "fp_id":        fp_id,
                     "fp_name":      merged_names.get(fp_id, "") if fp_id else "",
+                    "source":       source,
                     "score":        score,
                     "match_type":   mtype,
                     "needs_review": needs_review,
