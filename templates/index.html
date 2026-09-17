@@ -1235,6 +1235,10 @@
           </div>
         </div>
 
+        <div class="pbar" id="pWfh">
+          <div class="pfill" id="pfWfh"></div>
+        </div>
+
       </div>
 
       <!-- PNS -->
@@ -2060,18 +2064,14 @@ function switchTab(el){
 function checkReady(){
 
   /*
-    Backend saat ini tetap memakai fingerprint
-    + minimal satu template.
-
-    WFH dan periode sudah disiapkan
-    sebagai field FE dan akan dipakai
-    saat endpoint backend ditambahkan.
+    Minimal 1 sumber data absen (Fingerprint atau WFH)
+    + minimal 1 template (PNS atau PPPK).
   */
 
   document
     .getElementById('btnPreview')
     .disabled=!(
-      fpOk &&
+      (fpOk || wfhOk) &&
       (pnsOk || pppkOk)
     );
 
@@ -2152,6 +2152,8 @@ function removeFile(e, key){
   if(key==='Wfh'){
     wfhOk=false;
     selectedWfhFile=null;
+    const pWfh=document.getElementById('pWfh');
+    if(pWfh) pWfh.style.display='none';
   }
   if(key==='Pns') pnsOk=false;
   if(key==='Pppk') pppkOk=false;
@@ -2170,30 +2172,114 @@ function handleWfh(file){
   }
 
   selectedWfhFile=file;
-  wfhOk=true;
 
-  document
-    .getElementById('nWfh')
-    .textContent=file.name;
+  const bar=
+    document.getElementById('pWfh');
 
-  document
-    .getElementById('dWfh')
-    .textContent=
-      `${(
-        file.size/1024/1024
-      ).toFixed(2)} MB · siap digunakan`;
+  const fill=
+    document.getElementById('pfWfh');
 
-  document
-    .getElementById('iWfh')
-    .classList.add('show','ok');
+  bar.style.display='block';
+  fill.style.width='0';
 
-  document
-    .getElementById('zWfh')
-    .classList.add('done');
+  let p=0;
 
-  toast(
-    'File absensi WFH siap digunakan!',
-    'success'
+  const t=setInterval(
+    ()=>{
+      p=Math.min(
+        p+Math.random()*18,
+        85
+      );
+
+      fill.style.width=p+'%';
+    },
+    100
+  );
+
+  const fd=new FormData();
+
+  fd.append(
+    'file',
+    file
+  );
+
+  fetch(
+    '/upload-wfh',
+    {
+      method:'POST',
+      body:fd
+    }
+  )
+  .then(
+    r=>r.json()
+  )
+  .then(
+    d=>{
+
+      clearInterval(t);
+
+      fill.style.width='100%';
+
+      setTimeout(
+        ()=>bar.style.display='none',
+        600
+      );
+
+      if(d.error){
+
+        toast(
+          d.error,
+          'error'
+        );
+
+        return;
+      }
+
+      document
+        .getElementById('nWfh')
+        .textContent=d.filename;
+
+      document
+        .getElementById('dWfh')
+        .textContent=
+          `${d.employees} pegawai · ${
+            d.clean_records
+          } record bersih`;
+
+      document
+        .getElementById('iWfh')
+        .classList.add('show','ok');
+
+      document
+        .getElementById('zWfh')
+        .classList.add('done');
+
+      setUploadedUI('Wfh', true);
+
+      wfhOk=true;
+
+      checkReady();
+
+      toast(
+        'File absensi WFH berhasil diupload!',
+        'success'
+      );
+
+    }
+  )
+  .catch(
+    e=>{
+
+      clearInterval(t);
+
+      bar.style.display='none';
+
+      toast(
+        'Error: '+e.message,
+        'error'
+      );
+
+    }
   );
 
 }
@@ -3706,6 +3792,10 @@ function resetAll(){
 
   document
     .getElementById('pFp')
+    .style.display='none';
+
+  document
+    .getElementById('pWfh')
     .style.display='none';
 
 

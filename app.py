@@ -2,16 +2,18 @@
 """
 Absensi Cleaner v2 — Flask Web App
 ====================================
-Otomatis: baca fingerprint → cleaning → cocokkan nama → isi template PNS/PPPK
+Otomatis: baca fingerprint/WFH → cleaning → cocokkan nama → isi template PNS/PPPK
 
 Fixes:
   Case 1 — Prioritas Status Baru (Kolom F): F > E, Lembur Masuk/Keluar dikenali
   Case 2 — Preserve Data Validation dropdown (keep_vba untuk .xlsm)
   Case 3 — Fuzzy matching ketat: threshold 80, deteksi multi-kandidat ambiguitas
   Case 4 — Warna merah pada sel jam kosong (data tidak tersedia)
+  Case 5 — WFH data processing dari Google Forms Excel + merge dengan WFO
 """
 
 import os, io, re, zipfile, copy, shutil, difflib
+import pandas as pd
 from datetime import time as dt_time
 from flask import Flask, render_template, request, send_file, jsonify, session
 import xlrd
@@ -308,6 +310,177 @@ def clean_fingerprint(rows):
 
 
 # ══════════════════════════════════════════════════════════════
+#  WFH DATA: READ & CLEAN (Google Forms Excel)
+# ══════════════════════════════════════════════════════════════
+
+def read_wfh_data(filepath):
+    """
+    Baca dan proses data WFH dari Excel (Google Forms export).
+
+    Kolom yang diharapkan (case-insensitive):
+    - Timestamp       → dipecah menjadi tanggal (day int) + jam (HH:MM)
+    - NAMA LENGKAP    → identitas pegawai
+    - KEHADIRAN       → 'CHECK IN' atau 'CHECK OUT'
+
+    Returns: (wfh_names, wfh_data) format identik clean_fingerprint():
+      wfh_names = {wfh_id: nama}
+      wfh_data  = {wfh_id: {day: {"masuk": "HH:MM", "keluar": "HH:MM"}}}
+    """
+    df = pd.read_excel(filepath)
+
+    # Normalisasi nama kolom: lowercase, strip whitespace
+    df.columns = df.columns.str.strip().str.lower()
+
+    # Cari kolom yang cocok (flexible matching)
+    col_timestamp = None
+    col_nama = None
+    col_kehadiran = None
+
+    for col in df.columns:
+        cl = col.lower().strip()
+        if 'timestamp' in cl or 'waktu' in cl:
+            col_timestamp = col
+        elif 'nama' in cl and ('lengkap' in cl or col == 'nama'):
+            col_nama = col
+        elif 'kehadiran' in cl or 'status' in cl or 'check' in cl:
+            col_kehadiran = col
+
+    # Fallback: jika tidak ditemukan, coba pakai kolom pertama, kedua, ketiga
+    if col_timestamp is None and len(df.columns) >= 1:
+        col_timestamp = df.columns[0]
+    if col_nama is None and len(df.columns) >= 2:
+        col_nama = df.columns[1]
+    if col_kehadiran is None and len(df.columns) >= 3:
+        col_kehadiran = df.columns[2]
+
+    if col_timestamp is None or col_nama is None or col_kehadiran is None:
+        raise ValueError(
+            "File WFH tidak memiliki kolom yang diperlukan "
+            "(Timestamp, NAMA LENGKAP, KEHADIRAN)"
+        )
+
+    # Drop baris kosong
+    df = df.dropna(subset=[col_timestamp, col_nama, col_kehadiran])
+
+    # Parse timestamp
+    df[col_timestamp] = pd.to_datetime(df[col_timestamp], dayfirst=True, errors='coerce')
+    df = df.dropna(subset=[col_timestamp])
+
+    # Ekstrak day (int) dan jam (HH:MM)
+    df['_day'] = df[col_timestamp].dt.day
+    df['_time'] = df[col_timestamp].dt.strftime('%H:%M')
+
+    # Normalisasi nama dan kehadiran
+    df['_nama'] = df[col_nama].astype(str).str.strip()
+    df['_kehadiran'] = df[col_kehadiran].astype(str).str.strip().str.upper()
+
+    wfh_names = {}  # {wfh_id: canonical_name}
+    wfh_data = {}   # {wfh_id: {day: {"masuk": "HH:MM", "keluar": "HH:MM"}}}
+
+    # Group by nama + day
+    for (nama, day), group in df.groupby(['_nama', '_day']):
+        if not nama or nama.lower() in ('nan', 'none', ''):
+            continue
+
+        # Generate WFH ID unik berdasarkan nama (prefix WFH_ agar tidak bentrok fp_id)
+        wfh_id = "WFH_" + norm_name(nama)
+
+        if wfh_id not in wfh_names:
+            wfh_names[wfh_id] = nama
+
+        if wfh_id not in wfh_data:
+            wfh_data[wfh_id] = {}
+
+        day_int = int(day)
+        if day_int not in wfh_data[wfh_id]:
+            wfh_data[wfh_id][day_int] = {}
+
+        # Filter CHECK IN → jam paling awal
+        checkins = group[group['_kehadiran'] == 'CHECK IN']
+        if not checkins.empty:
+            earliest = checkins['_time'].min()
+            if 'masuk' not in wfh_data[wfh_id][day_int]:
+                wfh_data[wfh_id][day_int]['masuk'] = earliest
+            elif time_earlier(earliest, wfh_data[wfh_id][day_int]['masuk']):
+                wfh_data[wfh_id][day_int]['masuk'] = earliest
+
+        # Filter CHECK OUT → jam paling akhir
+        checkouts = group[group['_kehadiran'] == 'CHECK OUT']
+        if not checkouts.empty:
+            latest = checkouts['_time'].max()
+            if 'keluar' not in wfh_data[wfh_id][day_int]:
+                wfh_data[wfh_id][day_int]['keluar'] = latest
+            elif not time_earlier(latest, wfh_data[wfh_id][day_int]['keluar']):
+                wfh_data[wfh_id][day_int]['keluar'] = latest
+
+    return wfh_names, wfh_data
+
+
+def merge_attendance_data(fp_names, fp_data, wfh_names, wfh_data):
+    """
+    Gabungkan data WFO (fingerprint) dan WFH menjadi satu dict.
+
+    Strategi: cross-reference nama WFH ke fp_id fingerprint yang sesuai.
+    - Jika nama WFH cocok dengan nama fingerprint → gabungkan hari WFH ke fp_id tsb
+    - Jika tidak cocok (pegawai WFH-only) → tambahkan sebagai WFH_NAMA (fallback)
+
+    Jika satu orang tercatat WFO dan WFH di hari yang sama,
+    data WFO (fingerprint) diutamakan — tidak di-overwrite oleh WFH.
+
+    Returns: (merged_names, merged_data)
+    """
+    merged_names = dict(fp_names)    # mulai dari copy WFO
+    merged_data = {}
+
+    # Deep-copy fp_data
+    for fp_id, days in fp_data.items():
+        merged_data[fp_id] = {}
+        for day, times in days.items():
+            merged_data[fp_id][day] = dict(times)
+
+    # Cross-reference: cari fp_id yang cocok untuk setiap pegawai WFH
+    # Bangun lookup {wfh_id: matched_fp_id atau None}
+    wfh_to_fp = {}
+    for wfh_id, wfh_name in wfh_names.items():
+        best_fp_id = None
+        best_score = 0
+        for fp_id, fp_name in fp_names.items():
+            score, _ = match_score(wfh_name, fp_name)
+            if score > best_score:
+                best_score = score
+                best_fp_id = fp_id
+        # Gunakan threshold yang sama (AUTO_MATCH_THRESHOLD) untuk cross-reference
+        if best_score >= AUTO_MATCH_THRESHOLD and best_fp_id:
+            wfh_to_fp[wfh_id] = best_fp_id
+        else:
+            wfh_to_fp[wfh_id] = None  # WFH-only, tidak ada pasangan fingerprint
+
+    # Merge WFH data berdasarkan cross-reference
+    for wfh_id, days in wfh_data.items():
+        target_id = wfh_to_fp.get(wfh_id)
+
+        if target_id:
+            # Cocok dengan fp_id → gabungkan hari WFH ke entry fingerprint yang sama
+            if target_id not in merged_data:
+                merged_data[target_id] = {}
+            for day, times in days.items():
+                if day not in merged_data[target_id]:
+                    # Hari ini hanya ada WFH → tambahkan
+                    merged_data[target_id][day] = dict(times)
+                # else: hari sudah ada data WFO → WFO diutamakan, skip WFH
+        else:
+            # WFH-only (tidak ada fingerprint) → tambahkan sebagai WFH_NAMA
+            merged_names[wfh_id] = wfh_names[wfh_id]
+            if wfh_id not in merged_data:
+                merged_data[wfh_id] = {}
+            for day, times in days.items():
+                if day not in merged_data[wfh_id]:
+                    merged_data[wfh_id][day] = dict(times)
+
+    return merged_names, merged_data
+
+
+# ══════════════════════════════════════════════════════════════
 #  TEMPLATE: READ EMPLOYEE LIST
 # ══════════════════════════════════════════════════════════════
 
@@ -488,30 +661,52 @@ def index():
 @app.route("/debug-matching", methods=["POST"])
 def debug_matching():
     """
-    Debug endpoint: tampilkan detail parsing fingerprint + skor matching.
+    Debug endpoint: tampilkan detail parsing fingerprint/WFH + skor matching.
     Berguna untuk verifikasi Case 1 (Status Baru) dan Case 3 (fuzzy match).
     """
-    fp_path  = session.get("fp_path")
-    pns_path = session.get("tpl_pns_path")
+    fp_path   = session.get("fp_path")
+    wfh_path  = session.get("wfh_path")
+    pns_path  = session.get("tpl_pns_path")
     pppk_path = session.get("tpl_pppk_path")
 
-    if not fp_path or not os.path.exists(fp_path):
-        return jsonify({"error": "File fingerprint belum diupload"}), 400
+    has_fp  = fp_path and os.path.exists(fp_path)
+    has_wfh = wfh_path and os.path.exists(wfh_path)
+
+    if not has_fp and not has_wfh:
+        return jsonify({"error": "Upload minimal 1 file absensi (Fingerprint atau WFH)"}), 400
 
     try:
-        rows = read_fingerprint(fp_path)
-        fp_names, fp_data = clean_fingerprint(rows)
-
-        # Sample raw rows (max 30) untuk cek Case 1
+        # Parse data WFO (fingerprint) jika ada
+        fp_names, fp_data = {}, {}
         raw_sample = []
-        for r in rows[:50]:
-            if r.get("status_baru"):
-                raw_sample.append({
-                    "nama":        r["nama"],
-                    "waktu":       r["waktu"],
-                    "status_e":    r["status"],
-                    "status_baru": r["status_baru"],
-                })
+        if has_fp:
+            rows = read_fingerprint(fp_path)
+            fp_names, fp_data = clean_fingerprint(rows)
+
+            # Sample raw rows (max 30) untuk cek Case 1
+            for r in rows[:50]:
+                if r.get("status_baru"):
+                    raw_sample.append({
+                        "nama":        r["nama"],
+                        "waktu":       r["waktu"],
+                        "status_e":    r["status"],
+                        "status_baru": r["status_baru"],
+                    })
+
+        # Parse data WFH jika ada
+        wfh_names, wfh_data = {}, {}
+        if has_wfh:
+            wfh_names, wfh_data = read_wfh_data(wfh_path)
+
+        # Merge WFO + WFH
+        if has_fp and has_wfh:
+            merged_names, merged_data = merge_attendance_data(
+                fp_names, fp_data, wfh_names, wfh_data
+            )
+        elif has_fp:
+            merged_names, merged_data = fp_names, fp_data
+        else:
+            merged_names, merged_data = wfh_names, wfh_data
 
         # Detail matching untuk setiap template
         debug_matches = {}
@@ -521,10 +716,10 @@ def debug_matching():
             employees = read_template_employees(tpl_path)
             matches = []
             for emp in employees:
-                fp_id, score, mtype, needs_review = find_best_match(emp["name"], fp_names)
+                fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
                 matches.append({
                     "tpl_name":    emp["name"],
-                    "fp_name":     fp_names.get(fp_id, "") if fp_id else "",
+                    "fp_name":     merged_names.get(fp_id, "") if fp_id else "",
                     "score":       score,
                     "match_type":  mtype,
                     "needs_review": needs_review,
@@ -533,11 +728,14 @@ def debug_matching():
             debug_matches[tpl_type] = matches
 
         return jsonify({
-            "threshold":      AUTO_MATCH_THRESHOLD,
-            "fp_employees":   len(fp_names),
-            "fp_names":       fp_names,
-            "status_baru_sample": raw_sample,  # Baris dengan Status Baru terisi (Case 1)
-            "matching":       debug_matches,
+            "threshold":          AUTO_MATCH_THRESHOLD,
+            "fp_employees":       len(fp_names),
+            "wfh_employees":      len(wfh_names),
+            "merged_employees":   len(merged_names),
+            "fp_names":           fp_names,
+            "wfh_names":          wfh_names,
+            "status_baru_sample": raw_sample,
+            "matching":           debug_matches,
         })
     except Exception as e:
         import traceback
@@ -587,6 +785,46 @@ def upload_fingerprint():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/upload-wfh", methods=["POST"])
+def upload_wfh():
+    """Upload dan parse file WFH Excel (Google Forms export)."""
+    if "file" not in request.files:
+        return jsonify({"error": "Tidak ada file"}), 400
+
+    f = request.files["file"]
+    if not f.filename:
+        return jsonify({"error": "Nama file kosong"}), 400
+
+    ext = os.path.splitext(f.filename)[1].lower()
+    if ext not in (".xls", ".xlsx", ".xlsm"):
+        return jsonify({"error": "Format harus .xls atau .xlsx"}), 400
+
+    save_path = os.path.join(UPLOAD_FOLDER, "wfh_data" + ext)
+    f.save(save_path)
+    session["wfh_path"] = save_path
+    session["wfh_filename"] = f.filename
+
+    try:
+        wfh_names, wfh_data = read_wfh_data(save_path)
+
+        # Stats
+        total_records = sum(
+            len(times)
+            for days in wfh_data.values()
+            for times in days.values()
+        )
+
+        return jsonify({
+            "success": True,
+            "filename": f.filename,
+            "employees": len(wfh_names),
+            "clean_records": total_records,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
+
 @app.route("/upload-template", methods=["POST"])
 def upload_template():
     """Upload PNS or PPPK template file."""
@@ -626,19 +864,40 @@ def upload_template():
 @app.route("/preview", methods=["POST"])
 def preview():
     """Preview matching results before processing."""
-    fp_path  = session.get("fp_path")
-    pns_path = session.get("tpl_pns_path")
+    fp_path   = session.get("fp_path")
+    wfh_path  = session.get("wfh_path")
+    pns_path  = session.get("tpl_pns_path")
     pppk_path = session.get("tpl_pppk_path")
 
-    if not fp_path or not os.path.exists(fp_path):
-        return jsonify({"error": "File fingerprint belum diupload"}), 400
+    has_fp  = fp_path and os.path.exists(fp_path)
+    has_wfh = wfh_path and os.path.exists(wfh_path)
+
+    if not has_fp and not has_wfh:
+        return jsonify({"error": "Upload minimal 1 file absensi (Fingerprint atau WFH)"}), 400
     if not pns_path and not pppk_path:
         return jsonify({"error": "Minimal upload 1 template (PNS atau PPPK)"}), 400
 
     try:
-        # Clean fingerprint
-        rows = read_fingerprint(fp_path)
-        fp_names, fp_data = clean_fingerprint(rows)
+        # 1. Parse data WFO (fingerprint) jika ada
+        fp_names, fp_data = {}, {}
+        if has_fp:
+            rows = read_fingerprint(fp_path)
+            fp_names, fp_data = clean_fingerprint(rows)
+
+        # 2. Parse data WFH jika ada
+        wfh_names, wfh_data = {}, {}
+        if has_wfh:
+            wfh_names, wfh_data = read_wfh_data(wfh_path)
+
+        # 3. Merge WFO + WFH → unified data
+        if has_fp and has_wfh:
+            merged_names, merged_data = merge_attendance_data(
+                fp_names, fp_data, wfh_names, wfh_data
+            )
+        elif has_fp:
+            merged_names, merged_data = fp_names, fp_data
+        else:
+            merged_names, merged_data = wfh_names, wfh_data
 
         result = {"pns": None, "pppk": None, "unmatched_fp": []}
         matched_fp_ids = set()
@@ -652,21 +911,21 @@ def preview():
 
             for emp in employees:
                 # 4-tuple: fp_id, score, match_type, needs_review
-                fp_id, score, mtype, needs_review = find_best_match(emp["name"], fp_names)
+                fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
 
                 match_info = {
                     "tpl_no":       emp["no"],
                     "tpl_row":      emp["row"],
                     "tpl_name":     emp["name"],
                     "fp_id":        fp_id,
-                    "fp_name":      fp_names.get(fp_id, "") if fp_id else "",
+                    "fp_name":      merged_names.get(fp_id, "") if fp_id else "",
                     "score":        score,
                     "match_type":   mtype,
                     "needs_review": needs_review,
                     "days_with_data": 0,
                 }
-                if fp_id and fp_id in fp_data:
-                    match_info["days_with_data"] = len(fp_data[fp_id])
+                if fp_id and fp_id in merged_data:
+                    match_info["days_with_data"] = len(merged_data[fp_id])
                     matched_fp_ids.add(fp_id)
                 matches.append(match_info)
 
@@ -687,12 +946,12 @@ def preview():
                 "matches":      matches,
             }
 
-        # Fingerprint employee yang tidak tercocokkan ke mana pun
-        for fp_id, fp_name in fp_names.items():
-            if fp_id not in matched_fp_ids:
+        # Employee dari sumber data yang tidak tercocokkan ke mana pun
+        for src_id, src_name in merged_names.items():
+            if src_id not in matched_fp_ids:
                 result["unmatched_fp"].append({
-                    "fp_id":   fp_id,
-                    "fp_name": fp_name,
+                    "fp_id":   src_id,
+                    "fp_name": src_name,
                 })
 
         # Sertakan keputusan yang tersimpan di session jika ada
@@ -717,11 +976,15 @@ def save_decisions():
 def process():
     """Process cleaning + fill templates → download ZIP."""
     fp_path   = session.get("fp_path")
+    wfh_path  = session.get("wfh_path")
     pns_path  = session.get("tpl_pns_path")
     pppk_path = session.get("tpl_pppk_path")
 
-    if not fp_path or not os.path.exists(fp_path):
-        return jsonify({"error": "File fingerprint belum diupload"}), 400
+    has_fp  = fp_path and os.path.exists(fp_path)
+    has_wfh = wfh_path and os.path.exists(wfh_path)
+
+    if not has_fp and not has_wfh:
+        return jsonify({"error": "Upload minimal 1 file absensi (Fingerprint atau WFH)"}), 400
     if not pns_path and not pppk_path:
         return jsonify({"error": "Minimal upload 1 template"}), 400
 
@@ -730,11 +993,28 @@ def process():
     decisions = data.get("decisions") or session.get("decisions", {})
 
     try:
-        # 1. Clean fingerprint
-        rows = read_fingerprint(fp_path)
-        fp_names, fp_data = clean_fingerprint(rows)
+        # 1. Parse data WFO (fingerprint) jika ada
+        fp_names, fp_data = {}, {}
+        if has_fp:
+            rows = read_fingerprint(fp_path)
+            fp_names, fp_data = clean_fingerprint(rows)
 
-        # 2. Proses setiap template
+        # 2. Parse data WFH jika ada
+        wfh_names, wfh_data = {}, {}
+        if has_wfh:
+            wfh_names, wfh_data = read_wfh_data(wfh_path)
+
+        # 3. Merge WFO + WFH → unified data
+        if has_fp and has_wfh:
+            merged_names, merged_data = merge_attendance_data(
+                fp_names, fp_data, wfh_names, wfh_data
+            )
+        elif has_fp:
+            merged_names, merged_data = fp_names, fp_data
+        else:
+            merged_names, merged_data = wfh_names, wfh_data
+
+        # 4. Proses setiap template dengan merged data
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
 
@@ -747,7 +1027,7 @@ def process():
                 # Bangun matching list dengan 4-tuple (termasuk needs_review)
                 matching = []
                 for emp in employees:
-                    fp_id, score, mtype, needs_review = find_best_match(emp["name"], fp_names)
+                    fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
                     matching.append({
                         "tpl_row":      emp["row"],
                         "tpl_name":     emp["name"],
@@ -762,9 +1042,9 @@ def process():
                 if isinstance(decisions, dict):
                     tpl_decisions = decisions.get(tpl_type) or decisions.get(tpl_type.lower()) or {}
 
-                # Isi template (buat salinan)
+                # Isi template (buat salinan) — unified pipeline WFO+WFH
                 out_path = os.path.join(UPLOAD_FOLDER, f"{tpl_type}_FILLED.xlsx")
-                filled = fill_template(tpl_path, out_path, matching, fp_data, decisions=tpl_decisions)
+                filled = fill_template(tpl_path, out_path, matching, merged_data, decisions=tpl_decisions)
 
                 # Tambahkan ke ZIP
                 orig_name = session.get(f"tpl_{tpl_type.lower()}_filename", f"{tpl_type}.xlsx")
