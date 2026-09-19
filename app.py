@@ -479,7 +479,7 @@ def merge_attendance_data(fp_names, fp_data, wfh_names, wfh_data):
                 best_score = score
                 best_fp_id = fp_id
         # Gunakan threshold yang sama (AUTO_MATCH_THRESHOLD) untuk cross-reference
-        if best_score >= AUTO_MATCH_THRESHOLD and best_fp_id:
+        if best_score >= 0 and best_fp_id:
             wfh_to_fp[wfh_id] = best_fp_id
         else:
             wfh_to_fp[wfh_id] = None  # WFH-only, tidak ada pasangan fingerprint
