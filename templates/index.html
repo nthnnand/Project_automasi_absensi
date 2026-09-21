@@ -1337,116 +1337,119 @@
 
     </div>
 
-    <!-- ═══ PERIOD ═══ -->
+    <!-- ═══ RENTANG TANGGAL ═══ -->
     <div class="period-card">
 
       <div class="period-title">
 
         <div class="ico">
-          ▣
+          📅
         </div>
 
         <div>
           <div class="uz-title">
-            Pilih Periode
+            Pilih Rentang Tanggal yang Diproses
           </div>
 
           <div
             class="card-s"
             style="margin:0"
           >
-            Tentukan periode data yang akan diproses.
+            Hanya data pada tanggal dalam rentang ini (contoh: 1 s/d 3) yang akan dicocokkan dan dimasukkan ke template.
           </div>
         </div>
 
       </div>
 
-      <div class="period-options">
+      <div style="display:flex;gap:16px;align-items:center;margin-top:10px">
 
-        <label class="period-radio">
-
-          <input
-            type="radio"
-            name="period_type"
-            value="mingguan"
-            checked
-            onchange="togglePeriod()"
+        <div style="flex:1">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">
+            Tanggal Mulai:
+          </label>
+          <select
+            class="period-select"
+            id="startDay"
+            name="start_day"
+            style="width:100%;margin-top:0"
           >
+            <option value="1" selected>Tanggal 1</option>
+            <option value="2">Tanggal 2</option>
+            <option value="3">Tanggal 3</option>
+            <option value="4">Tanggal 4</option>
+            <option value="5">Tanggal 5</option>
+            <option value="6">Tanggal 6</option>
+            <option value="7">Tanggal 7</option>
+            <option value="8">Tanggal 8</option>
+            <option value="9">Tanggal 9</option>
+            <option value="10">Tanggal 10</option>
+            <option value="11">Tanggal 11</option>
+            <option value="12">Tanggal 12</option>
+            <option value="13">Tanggal 13</option>
+            <option value="14">Tanggal 14</option>
+            <option value="15">Tanggal 15</option>
+            <option value="16">Tanggal 16</option>
+            <option value="17">Tanggal 17</option>
+            <option value="18">Tanggal 18</option>
+            <option value="19">Tanggal 19</option>
+            <option value="20">Tanggal 20</option>
+            <option value="21">Tanggal 21</option>
+            <option value="22">Tanggal 22</option>
+            <option value="23">Tanggal 23</option>
+            <option value="24">Tanggal 24</option>
+            <option value="25">Tanggal 25</option>
+            <option value="26">Tanggal 26</option>
+            <option value="27">Tanggal 27</option>
+            <option value="28">Tanggal 28</option>
+            <option value="29">Tanggal 29</option>
+            <option value="30">Tanggal 30</option>
+            <option value="31">Tanggal 31</option>
+          </select>
+        </div>
 
-          Mingguan
-
-        </label>
-
-        <label class="period-radio">
-
-          <input
-            type="radio"
-            name="period_type"
-            value="bulanan"
-            onchange="togglePeriod()"
+        <div style="flex:1">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">
+            Tanggal Selesai:
+          </label>
+          <select
+            class="period-select"
+            id="endDay"
+            name="end_day"
+            style="width:100%;margin-top:0"
           >
-
-          Bulanan
-
-        </label>
-
-      </div>
-
-      <div>
-
-        <select
-          class="period-select"
-          id="periodWeek"
-          name="period_week"
-        >
-
-          <option value="">
-            Pilih minggu (contoh: 01 - 07 Sep 2026)
-          </option>
-
-          <option value="2026-W01">
-            Minggu ke-1 (01 - 07 Sep 2026)
-          </option>
-
-          <option value="2026-W02">
-            Minggu ke-2 (08 - 14 Sep 2026)
-          </option>
-
-          <option value="2026-W03">
-            Minggu ke-3 (15 - 21 Sep 2026)
-          </option>
-
-          <option value="2026-W04">
-            Minggu ke-4 (22 - 30 Sep 2026)
-          </option>
-
-        </select>
-
-        <select
-          class="period-select"
-          id="periodMonth"
-          name="period_month"
-          style="display:none;margin-top:0"
-        >
-
-          <option value="">
-            Pilih bulan
-          </option>
-
-          <option value="2026-01">Januari 2026</option>
-          <option value="2026-02">Februari 2026</option>
-          <option value="2026-03">Maret 2026</option>
-          <option value="2026-04">April 2026</option>
-          <option value="2026-05">Mei 2026</option>
-          <option value="2026-06">Juni 2026</option>
-          <option value="2026-07">Juli 2026</option>
-          <option value="2026-08">Agustus 2026</option>
-          <option value="2026-09">September 2026</option>
-          <option value="2026-10">Oktober 2026</option>
-          <option value="2026-11">November 2026</option>
-          <option value="2026-12">Desember 2026</option>
-
-        </select>
+            <option value="1">Tanggal 1</option>
+            <option value="2">Tanggal 2</option>
+            <option value="3">Tanggal 3</option>
+            <option value="4">Tanggal 4</option>
+            <option value="5">Tanggal 5</option>
+            <option value="6">Tanggal 6</option>
+            <option value="7">Tanggal 7</option>
+            <option value="8">Tanggal 8</option>
+            <option value="9">Tanggal 9</option>
+            <option value="10">Tanggal 10</option>
+            <option value="11">Tanggal 11</option>
+            <option value="12">Tanggal 12</option>
+            <option value="13">Tanggal 13</option>
+            <option value="14">Tanggal 14</option>
+            <option value="15">Tanggal 15</option>
+            <option value="16">Tanggal 16</option>
+            <option value="17">Tanggal 17</option>
+            <option value="18">Tanggal 18</option>
+            <option value="19">Tanggal 19</option>
+            <option value="20">Tanggal 20</option>
+            <option value="21">Tanggal 21</option>
+            <option value="22">Tanggal 22</option>
+            <option value="23">Tanggal 23</option>
+            <option value="24">Tanggal 24</option>
+            <option value="25">Tanggal 25</option>
+            <option value="26">Tanggal 26</option>
+            <option value="27">Tanggal 27</option>
+            <option value="28">Tanggal 28</option>
+            <option value="29">Tanggal 29</option>
+            <option value="30">Tanggal 30</option>
+            <option value="31" selected>Tanggal 31</option>
+          </select>
+        </div>
 
       </div>
 
@@ -1480,8 +1483,8 @@
     </div>
 
     <p class="card-s">
-      Sistem mencocokkan nama di template dengan data fingerprint dan WFH.
-      Hijau = cocok otomatis, kuning = perlu review (pilih Masukkan/Abaikan), merah = tidak ditemukan.
+      Sistem menampilkan hasil pencocokan nama template terhadap data WFO dan WFH.
+      Hasil dengan <strong>threshold ≥ 80% otomatis ditandai Masukkan</strong>. Untuk data dengan <strong>threshold &lt; 80%</strong>, silakan tentukan keputusan secara manual per data atau gunakan tombol aksi di bawah.
     </p>
 
     <div class="sgrid" id="statsGrid">
@@ -1553,24 +1556,59 @@
 
     </div>
 
+    <!-- ═══ AKSI CEPAT SECTION 2 ═══ -->
+    <div
+      class="rev-toolbar"
+      id="barSec2"
+      style="margin-bottom:16px;background:#fff8f2;border:1px solid #f1dccb"
+    >
+      <div class="rev-toolbar-info">
+        <span>⚡</span>
+        <span>
+          Aksi Cepat Section 2:
+          <span style="font-size:11px;color:var(--text2);font-weight:normal">(Data ≥80% otomatis dimasukkan)</span>
+        </span>
+      </div>
+      <div class="rev-toolbar-btns">
+        <button
+          type="button"
+          class="btn-tool btn-tool-inc"
+          id="btnIncludeAll"
+          onclick="bulkDecisionAll('include_all')"
+          title="Memilih/memasukkan seluruh data yang tampil di Section 2, termasuk data dengan threshold <80%"
+        >
+          ✅ Masukkan Semua
+        </button>
+        <button
+          type="button"
+          class="btn-tool btn-tool-ign"
+          id="btnIgnoreAll"
+          onclick="bulkDecisionAll('ignore_all')"
+          title="Mengabaikan seluruh data yang tampil di Section 2 sehingga tidak ada yang dimasukkan"
+        >
+          ❌ Abaikan Semua
+        </button>
+      </div>
+    </div>
 
-    <!-- TABS -->
+
+    <!-- TABS: WFO & WFH -->
     <div class="tabs">
 
       <div
         class="tab active"
-        data-tab="tabPns"
+        data-tab="tabWfo"
         onclick="switchTab(this)"
       >
-        🟢 PNS
+        🏢 WFO (Fingerprint)
       </div>
 
       <div
         class="tab"
-        data-tab="tabPppk"
+        data-tab="tabWfh"
         onclick="switchTab(this)"
       >
-        🔴 PPPK
+        🏠 WFH
       </div>
 
       <div
@@ -1584,31 +1622,31 @@
     </div>
 
 
-    <!-- PNS TAB -->
+    <!-- ═══ WFO TAB ═══ -->
     <div
       class="tab-pane active"
-      id="tabPns"
+      id="tabWfo"
     >
 
       <div
         class="rev-toolbar"
-        id="barPns"
+        id="barWfo"
         style="display:none"
       >
 
         <div class="rev-toolbar-info">
 
-          <span>⚠️</span>
+          <span>🏢</span>
 
           <span>
             Ada
             <strong
-              id="countPns"
+              id="countWfo"
               class="rev-badge-c"
             >
               0
             </strong>
-            nama berstatus Perlu Review:
+            data WFO menunggu keputusan Anda:
           </span>
 
         </div>
@@ -1618,97 +1656,169 @@
           <button
             type="button"
             class="btn-tool btn-tool-inc"
-            onclick="bulkDecision('PNS', 'include')"
+            onclick="bulkDecision('wfo', 'include_all')"
+            title="Pilih/masukkan seluruh data WFO yang tampil (termasuk <80%)"
           >
-            ✅ Masukkan Semua
+            ✅ Masukkan Semua WFO
           </button>
 
           <button
             type="button"
             class="btn-tool btn-tool-ign"
-            onclick="bulkDecision('PNS', 'ignore')"
+            onclick="bulkDecision('wfo', 'ignore_all')"
+            title="Abaikan semua data WFO"
           >
-            ❌ Abaikan Semua
+            ❌ Abaikan Semua WFO
           </button>
 
         </div>
 
       </div>
 
-      <div class="tbl-wrap">
+      <!-- PNS WFO -->
+      <div id="wrapWfoPns" style="margin-bottom:28px">
 
-        <table>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🟢</span> Template PNS — Data WFO
+            <span id="badgeCountPnsWfo" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(59,130,246,.12);color:var(--accent2)">0 data</span>
+          </div>
+        </div>
 
-          <thead>
+        <div class="tbl-wrap">
 
-            <tr>
+          <table>
 
-              <th style="width:36px">
-                #
-              </th>
+            <thead>
 
-              <th>
-                Nama di Template
-              </th>
+              <tr>
 
-              <th>
-                Nama di Fingerprint / WFH
-              </th>
+                <th style="width:36px">
+                  #
+                </th>
 
-              <th style="width:55px;text-align:center">
-                Skor
-              </th>
+                <th>
+                  Nama di Template
+                </th>
 
-              <th style="width:115px;text-align:center">
-                Status
-              </th>
+                <th>
+                  Nama di Fingerprint
+                </th>
 
-              <th style="width:45px;text-align:center">
-                Hari
-              </th>
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
 
-              <th style="width:175px;text-align:center">
-                Aksi / Pilihan
-              </th>
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
 
-            </tr>
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
 
-          </thead>
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
 
-          <tbody id="tbPns"></tbody>
+              </tr>
 
-        </table>
+            </thead>
+
+            <tbody id="tbWfoPns"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- PPPK WFO -->
+      <div id="wrapWfoPppk" style="margin-bottom:12px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🔴</span> Template PPPK — Data WFO
+            <span id="badgeCountPppkWfo" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(59,130,246,.12);color:var(--accent2)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di Fingerprint
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfoPppk"></tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
     </div>
 
 
-    <!-- PPPK TAB -->
+    <!-- ═══ WFH TAB ═══ -->
     <div
       class="tab-pane"
-      id="tabPppk"
+      id="tabWfh"
     >
 
       <div
         class="rev-toolbar"
-        id="barPppk"
+        id="barWfh"
         style="display:none"
       >
 
         <div class="rev-toolbar-info">
 
-          <span>⚠️</span>
+          <span>🏠</span>
 
           <span>
             Ada
             <strong
-              id="countPppk"
+              id="countWfh"
               class="rev-badge-c"
             >
               0
             </strong>
-            nama berstatus Perlu Review:
+            data WFH menunggu keputusan Anda:
           </span>
 
         </div>
@@ -1718,66 +1828,138 @@
           <button
             type="button"
             class="btn-tool btn-tool-inc"
-            onclick="bulkDecision('PPPK', 'include')"
+            onclick="bulkDecision('wfh', 'include_all')"
+            title="Pilih/masukkan seluruh data WFH yang tampil (termasuk <80%)"
           >
-            ✅ Masukkan Semua
+            ✅ Masukkan Semua WFH
           </button>
 
           <button
             type="button"
             class="btn-tool btn-tool-ign"
-            onclick="bulkDecision('PPPK', 'ignore')"
+            onclick="bulkDecision('wfh', 'ignore_all')"
+            title="Abaikan semua data WFH"
           >
-            ❌ Abaikan Semua
+            ❌ Abaikan Semua WFH
           </button>
 
         </div>
 
       </div>
 
-      <div class="tbl-wrap">
+      <!-- PNS WFH -->
+      <div id="wrapWfhPns" style="margin-bottom:28px">
 
-        <table>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🟢</span> Template PNS — Data WFH
+            <span id="badgeCountPnsWfh" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,.12);color:var(--green)">0 data</span>
+          </div>
+        </div>
 
-          <thead>
+        <div class="tbl-wrap">
 
-            <tr>
+          <table>
 
-              <th style="width:36px">
-                #
-              </th>
+            <thead>
 
-              <th>
-                Nama di Template
-              </th>
+              <tr>
 
-              <th>
-                Nama di Fingerprint / WFH
-              </th>
+                <th style="width:36px">
+                  #
+                </th>
 
-              <th style="width:55px;text-align:center">
-                Skor
-              </th>
+                <th>
+                  Nama di Template
+                </th>
 
-              <th style="width:115px;text-align:center">
-                Status
-              </th>
+                <th>
+                  Nama di WFH
+                </th>
 
-              <th style="width:45px;text-align:center">
-                Hari
-              </th>
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
 
-              <th style="width:175px;text-align:center">
-                Aksi / Pilihan
-              </th>
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
 
-            </tr>
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
 
-          </thead>
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
 
-          <tbody id="tbPppk"></tbody>
+              </tr>
 
-        </table>
+            </thead>
+
+            <tbody id="tbWfhPns"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- PPPK WFH -->
+      <div id="wrapWfhPppk" style="margin-bottom:12px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🔴</span> Template PPPK — Data WFH
+            <span id="badgeCountPppkWfh" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,.12);color:var(--green)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di WFH
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfhPppk"></tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
@@ -1880,11 +2062,15 @@
       <strong style="color:var(--green)">
         M
       </strong>
-      (Masuk) dan
+      (Masuk),
       <strong style="color:var(--red)">
         P
       </strong>
-      (Pulang) di sheet "Input Data Absen"
+      (Pulang), dan
+      <strong style="color:var(--accent2)">
+        K
+      </strong>
+      (Keterangan: H untuk WFO, WFH untuk WFH) di sheet "Input Data Absen"
 
       <br/>
 
@@ -1893,7 +2079,7 @@
         Yang TIDAK diubah:
       </strong>
 
-      kolom K (Keterangan), formula, format, dan sheet lainnya
+      formula, format, dan sheet lainnya
 
     </div>
 
@@ -2669,1158 +2855,727 @@ setupDrop(
 /* ── Preview ── */
 
 function doPreview(){
+  const startDayEl = document.getElementById('startDay');
+  const endDayEl = document.getElementById('endDay');
+  const startDay = startDayEl ? parseInt(startDayEl.value, 10) : 1;
+  const endDay = endDayEl ? parseInt(endDayEl.value, 10) : 31;
 
-  const btn=
-    document.getElementById(
-      'btnPreview'
-    );
+  if(startDay > endDay){
+    toast('Tanggal Mulai tidak boleh lebih besar dari Tanggal Selesai!', 'error');
+    return;
+  }
 
-  const sp=
-    document.getElementById(
-      'spPrev'
-    );
+  const btn = document.getElementById('btnPreview');
+  const sp = document.getElementById('spPrev');
 
-  btn.disabled=true;
-  sp.style.display='block';
+  btn.disabled = true;
+  sp.style.display = 'block';
 
-  fetch(
-    '/preview',
-    {
-      method:'POST',
-      headers:{
-        'Content-Type':
-          'application/json'
-      },
-      body:'{}'
-    }
-  )
-  .then(
-    r=>r.json()
-  )
-  .then(
-    d=>{
+  fetch('/preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      start_day: startDay,
+      end_day: endDay
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    btn.disabled = false;
+    sp.style.display = 'none';
 
-      btn.disabled=false;
-      sp.style.display='none';
-
-      if(d.error){
-
-        toast(
-          d.error,
-          'error'
-        );
-
-        checkReady();
-
-        return;
-      }
-
-      renderPreview(d);
-
-      goStep(2);
-
-      showSec(
-        'secUpload',
-        'secPreview',
-        'secDownload'
-      );
-
-      document
-        .getElementById('secPreview')
-        .scrollIntoView({
-          behavior:'smooth'
-        });
-
-      toast(
-        'Preview siap!',
-        'success'
-      );
-
-    }
-  )
-  .catch(
-    e=>{
-
-      btn.disabled=false;
-      sp.style.display='none';
-
-      toast(
-        'Error: '+e.message,
-        'error'
-      );
-
+    if(d.error){
+      toast(d.error, 'error');
       checkReady();
-
+      return;
     }
-  );
 
+    renderPreview(d);
+    goStep(2);
+    showSec('secUpload', 'secPreview', 'secDownload');
+    document.getElementById('secPreview').scrollIntoView({ behavior: 'smooth' });
+    toast(`Preview siap untuk rentang Tgl ${startDay} s/d ${endDay}!`, 'success');
+  })
+  .catch(e => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+    toast('Error: ' + e.message, 'error');
+    checkReady();
+  });
 }
 
 
 /* ── Render Preview ── */
 
 function renderPreview(d){
+  previewData = d;
 
-  previewData=d;
-
-  /* Restore keputusan jika ada */
-
-  if(d.saved_decisions){
-
-    userDecisions={
-      PNS:
-        d.saved_decisions.PNS ||
-        d.saved_decisions.pns ||
-        {},
-
-      PPPK:
-        d.saved_decisions.PPPK ||
-        d.saved_decisions.pppk ||
-        {}
+  if(d.saved_decisions && Object.keys(d.saved_decisions).length > 0){
+    userDecisions = {
+      PNS: d.saved_decisions.PNS || d.saved_decisions.pns || {},
+      PPPK: d.saved_decisions.PPPK || d.saved_decisions.pppk || {}
     };
-
+  } else {
+    userDecisions = { PNS: {}, PPPK: {} };
   }
 
+  // 1. Auto Masuk berdasarkan Threshold:
+  // - Jika hasil matching memiliki threshold >= 80%, otomatis tandai sebagai Masukkan (true).
+  // - Jika threshold < 80%, jangan otomatis dimasukkan dan tetap minta keputusan user di Review (null).
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!d[key]) return;
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
 
-  function buildRow(m,tplType){
+    ['wfo', 'wfh'].forEach(src => {
+      const list = d[key][src] || (src === 'wfo' ? d[key].matches_fp : d[key].matches_wfh) || [];
+      list.forEach(m => {
+        if(!m.fp_id) return;
+        if(!userDecisions[tplType][m.tpl_row]){
+          userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+        }
+        // Hanya atur jika belum pernah ditentukan keputusannya (masih null/undefined)
+        if(userDecisions[tplType][m.tpl_row][src] === null || userDecisions[tplType][m.tpl_row][src] === undefined){
+          if(m.score >= 80){
+            userDecisions[tplType][m.tpl_row][src] = true;
+            if(m.tpl_name){
+              userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+            }
+          } else {
+            userDecisions[tplType][m.tpl_row][src] = null;
+          }
+        }
+      });
+    });
+  });
 
-    const scls=
-      m.score>=80
-        ? 'score-high'
-        : m.score>=40
-          ? 'score-mid'
-          : 'score-low';
+  saveDecisionsToServer();
 
-    let statusBadge='';
-    let actionCell='';
+  function buildRow(m, tplType, src){
+    const SRC = src.toUpperCase();
+    const rowDec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row]
+      ? userDecisions[tplType][m.tpl_row]
+      : null;
+    const choice = rowDec ? rowDec[src] : null;
+    const isChosen = choice === true;
+    const isIgnored = choice === false;
 
-
-    if(!m.fp_id){
-
-      statusBadge=
-        '<span class="badge badge-fail">Tidak Cocok</span>';
-
-      actionCell=
-        '<span style="color:var(--text3);font-size:11px">—</span>';
-
+    // 1. Skor & Rekomendasi
+    let scoreHtml = '';
+    if(!m.fp_id || m.score === 0){
+      scoreHtml = '<span style="color:var(--text3);font-size:11px">—</span>';
+    } else {
+      let scls = 'score-low';
+      let badgeColor = 'var(--red)';
+      if(m.score >= 80){
+        scls = 'score-high';
+        badgeColor = '#059669';
+      } else if(m.score >= 40){
+        scls = 'score-mid';
+        badgeColor = 'var(--amber2)';
+      }
+      scoreHtml = `
+        <div class="score ${scls}" style="font-size:12px">${m.score}%</div>
+        <div style="font-size:10px;font-weight:700;color:${badgeColor}">${m.rec_label || ''}</div>
+      `;
     }
 
-    else if(m.needs_review){
+    // 2. Tanggal Absen
+    let daysHtml = '';
+    if(m.days && m.days.length > 0){
+      const dayListStr = m.days.join(', ');
+      daysHtml = `
+        <span class="badge" style="background:rgba(59,130,246,.1);color:var(--accent2);font-size:11px" title="Tgl: ${dayListStr}">
+          📅 ${m.days.length} hari (${m.days.slice(0, 4).join(', ')}${m.days.length > 4 ? '...' : ''})
+        </span>
+      `;
+    } else {
+      daysHtml = '<span style="color:var(--text3);font-size:11px">0 hari</span>';
+    }
 
-      const dec=
-        userDecisions[tplType]
-          ? userDecisions[tplType][m.tpl_row]
-          : null;
+    // 3. Status Konflik
+    let conflictHtml = '';
+    if(m.has_conflict){
+      conflictHtml = `
+        <span class="badge badge-fail" style="font-size:11px;font-weight:700" title="Pegawai ini juga memiliki data ${src === 'wfo' ? 'WFH' : 'WFO'} pada tgl: ${m.conflict_days.join(', ')}">
+          ⚠️ Konflik Tgl ${m.conflict_days.join(', ')}
+        </span>
+      `;
+    } else if(src === 'wfo' && m.has_wfh){
+      conflictHtml = '<span style="color:var(--text2);font-size:11px">Ada WFH (Beda tgl)</span>';
+    } else if(src === 'wfh' && m.has_wfo){
+      conflictHtml = '<span style="color:var(--text2);font-size:11px">Ada WFO (Beda tgl)</span>';
+    } else {
+      conflictHtml = '<span style="color:var(--green);font-size:11px">✅ Tidak Ada</span>';
+    }
 
-      const isInc=
-        dec==='include';
+    // 4. Keputusan Anda
+    let actionHtml = '';
+    if(!m.fp_id){
+      actionHtml = '<span style="color:var(--text3);font-size:11px">— Tidak ada data —</span>';
+    } else {
+      const encName = encodeURIComponent(m.tpl_name);
+      const btnLabel = 'Masukkan';
+      const statusLabel = isChosen
+        ? '<span style="color:#059669;font-weight:700">✅ Masukkan</span>'
+        : isIgnored
+          ? '<span style="color:var(--red);font-weight:700">❌ Diabaikan</span>'
+          : '<span style="color:var(--amber2);font-weight:600">⏳ Belum Dipilih</span>';
 
-      const isIgn=
-        dec==='ignore';
-
-
-      if(isInc){
-
-        statusBadge=
-          `<span class="badge badge-ok" id="badge_${tplType}_${m.tpl_row}">
-            ✅ Dimasukkan
-          </span>`;
-
-      }
-
-      else if(isIgn){
-
-        statusBadge=
-          `<span class="badge badge-fail" id="badge_${tplType}_${m.tpl_row}">
-            ❌ Diabaikan
-          </span>`;
-
-      }
-
-      else{
-
-        statusBadge=
-          `<span class="badge badge-warn" id="badge_${tplType}_${m.tpl_row}">
-            ⚠️ Perlu Review
-          </span>`;
-
-      }
-
-
-      actionCell=`
-
-        <div
-          class="rev-group"
-          id="group_${tplType}_${m.tpl_row}"
-        >
-
+      actionHtml = `
+        <div class="rev-group" id="group_${SRC}_${tplType}_${m.tpl_row}">
           <button
             type="button"
-            class="btn-rev btn-rev-inc ${isInc ? 'active' : ''}"
-            onclick="setDecision(
-              '${tplType}',
-              ${m.tpl_row},
-              'include',
-              '${encodeURIComponent(m.tpl_name)}'
-            )"
-            title="Gunakan data fingerprint untuk pegawai ini saat export"
+            class="btn-rev btn-rev-inc ${isChosen ? 'active' : ''}"
+            onclick="setDecision('${tplType}', '${src}', ${m.tpl_row}, true, '${encName}')"
+            title="Tandai data ${SRC} untuk dimasukkan ke template"
           >
-            ✅ Masukkan
+            ✅ ${btnLabel}
           </button>
-
           <button
             type="button"
-            class="btn-rev btn-rev-ign ${isIgn ? 'active' : ''}"
-            onclick="setDecision(
-              '${tplType}',
-              ${m.tpl_row},
-              'ignore',
-              '${encodeURIComponent(m.tpl_name)}'
-            )"
-            title="Abaikan dan jangan isi data fingerprint untuk pegawai ini"
+            class="btn-rev btn-rev-ign ${isIgnored ? 'active' : ''}"
+            onclick="setDecision('${tplType}', '${src}', ${m.tpl_row}, false, '${encName}')"
+            title="Abaikan data ${SRC} pegawai ini"
           >
             ❌ Abaikan
           </button>
-
         </div>
-
+        <div id="status_${SRC}_${tplType}_${m.tpl_row}" style="margin-top:3px;font-size:10px">
+          ${statusLabel}
+        </div>
       `;
-
     }
-
-    else{
-
-      statusBadge=
-        '<span class="badge badge-ok">✅ Auto-Fill</span>';
-
-      actionCell=
-        '<span style="font-size:11px;color:var(--text3)">Otomatis (Skor ≥80)</span>';
-
-    }
-
 
     return `
-
-      <tr id="row_${tplType}_${m.tpl_row}">
-
-        <td style="color:var(--text3)">
-          ${m.tpl_no}
-        </td>
-
-        <td style="font-weight:600">
-          ${m.tpl_name}
-        </td>
-
+      <tr id="row_${SRC}_${tplType}_${m.tpl_row}">
+        <td style="color:var(--text3);text-align:center">${m.tpl_no}</td>
+        <td style="font-weight:600">${m.tpl_name}</td>
         <td>
-          ${
-            m.fp_name
-              ? `${m.fp_name} ${m.source ? '<span style="display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;' + (m.source==='WFH' ? 'background:rgba(59,130,246,.12);color:#2563eb;border:1px solid rgba(59,130,246,.25)' : 'background:rgba(16,185,129,.12);color:#059669;border:1px solid rgba(16,185,129,.25)') + '">' + m.source + '</span>' : ''}`
-              : '<span style="color:var(--text3)">— tidak ditemukan</span>'
-          }
+          ${m.fp_id ? `<div>${m.matched_name || m.fp_id}</div><div style="font-size:10px;color:var(--text3)">ID: ${m.fp_id}</div>` : '<span style="color:var(--text3)">— tidak ditemukan</span>'}
         </td>
-
-        <td style="text-align:center">
-          <span class="score ${scls}">
-            ${m.score || '—'}
-          </span>
-        </td>
-
-        <td style="text-align:center">
-          ${statusBadge}
-        </td>
-
-        <td style="text-align:center">
-          ${m.days_with_data || '—'}
-        </td>
-
-        <td style="text-align:center">
-          ${actionCell}
-        </td>
-
+        <td style="text-align:center">${scoreHtml}</td>
+        <td style="text-align:center">${daysHtml}</td>
+        <td style="text-align:center">${conflictHtml}</td>
+        <td style="text-align:center">${actionHtml}</td>
       </tr>
-
     `;
-
   }
 
+  // 1. PNS WFO
+  const tbWfoPns = document.getElementById('tbWfoPns');
+  const badgeCountPnsWfo = document.getElementById('badgeCountPnsWfo');
+  if(tbWfoPns){
+    tbWfoPns.innerHTML = '';
+    const wfoList = (d.pns && (d.pns.wfo || d.pns.matches_fp)) || [];
+    if(d.pns && wfoList.length > 0){
+      let matched = 0;
+      wfoList.forEach(m => {
+        if(m.fp_id && m.score > 0) matched++;
+        tbWfoPns.innerHTML += buildRow(m, 'PNS', 'wfo');
+      });
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = `${matched} cocok / ${wfoList.length} pegawai`;
+    } else if(d.pns && !d.has_fp){
+      tbWfoPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File Fingerprint tidak diupload</td></tr>';
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = '0 data';
+    } else if(!d.pns){
+      tbWfoPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PNS tidak diupload</td></tr>';
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = '0 data';
+    }
+  }
 
-  /* ── PNS TAB ── */
+  // 2. PPPK WFO
+  const tbWfoPppk = document.getElementById('tbWfoPppk');
+  const badgeCountPppkWfo = document.getElementById('badgeCountPppkWfo');
+  if(tbWfoPppk){
+    tbWfoPppk.innerHTML = '';
+    const wfoList = (d.pppk && (d.pppk.wfo || d.pppk.matches_fp)) || [];
+    if(d.pppk && wfoList.length > 0){
+      let matched = 0;
+      wfoList.forEach(m => {
+        if(m.fp_id && m.score > 0) matched++;
+        tbWfoPppk.innerHTML += buildRow(m, 'PPPK', 'wfo');
+      });
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = `${matched} cocok / ${wfoList.length} pegawai`;
+    } else if(d.pppk && !d.has_fp){
+      tbWfoPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File Fingerprint tidak diupload</td></tr>';
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = '0 data';
+    } else if(!d.pppk){
+      tbWfoPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PPPK tidak diupload</td></tr>';
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = '0 data';
+    }
+  }
 
-  const tbPns=
-    document.getElementById('tbPns');
-
-  tbPns.innerHTML='';
-
-  let pnsRevCount=0;
-
-
-  if(d.pns){
-
-    d.pns.matches.forEach(
-      m=>{
-
-        if(
-          m.fp_id &&
-          m.needs_review
-        ){
-          pnsRevCount++;
-        }
-
-        tbPns.innerHTML+=
-          buildRow(
-            m,
-            'PNS'
-          );
-
+  // 3. PNS WFH
+  const tbWfhPns = document.getElementById('tbWfhPns');
+  const badgeCountPnsWfh = document.getElementById('badgeCountPnsWfh');
+  if(tbWfhPns){
+    tbWfhPns.innerHTML = '';
+    const wfhList = (d.pns && (d.pns.wfh || d.pns.matches_wfh)) || [];
+    if(d.pns && wfhList.length > 0){
+      const activeWfh = wfhList.filter(m => m.fp_id && m.score > 0);
+      if(activeWfh.length > 0){
+        activeWfh.forEach(m => {
+          tbWfhPns.innerHTML += buildRow(m, 'PNS', 'wfh');
+        });
+        if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = `${activeWfh.length} tercatat WFH`;
+      } else {
+        tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Tidak ada pegawai PNS yang tercatat pada data WFH di rentang tanggal ini</td></tr>';
+        if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
       }
-    );
-
-  }
-
-  else{
-
-    tbPns.innerHTML=
-      '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:20px">Template PNS tidak diupload</td></tr>';
-
-  }
-
-
-  const barPns=
-    document.getElementById('barPns');
-
-  if(barPns){
-
-    if(pnsRevCount>0){
-
-      barPns.style.display='flex';
-
-      document
-        .getElementById('countPns')
-        .textContent=pnsRevCount;
-
+    } else if(d.pns && !d.has_wfh){
+      tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File WFH tidak diupload</td></tr>';
+      if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
+    } else if(!d.pns){
+      tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PNS tidak diupload</td></tr>';
+      if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
     }
-
-    else{
-
-      barPns.style.display='none';
-
-    }
-
   }
 
-
-  /* ── PPPK TAB ── */
-
-  const tbPppk=
-    document.getElementById('tbPppk');
-
-  tbPppk.innerHTML='';
-
-  let pppkRevCount=0;
-
-
-  if(d.pppk){
-
-    d.pppk.matches.forEach(
-      m=>{
-
-        if(
-          m.fp_id &&
-          m.needs_review
-        ){
-          pppkRevCount++;
-        }
-
-        tbPppk.innerHTML+=
-          buildRow(
-            m,
-            'PPPK'
-          );
-
+  // 4. PPPK WFH
+  const tbWfhPppk = document.getElementById('tbWfhPppk');
+  const badgeCountPppkWfh = document.getElementById('badgeCountPppkWfh');
+  if(tbWfhPppk){
+    tbWfhPppk.innerHTML = '';
+    const wfhList = (d.pppk && (d.pppk.wfh || d.pppk.matches_wfh)) || [];
+    if(d.pppk && wfhList.length > 0){
+      const activeWfh = wfhList.filter(m => m.fp_id && m.score > 0);
+      if(activeWfh.length > 0){
+        activeWfh.forEach(m => {
+          tbWfhPppk.innerHTML += buildRow(m, 'PPPK', 'wfh');
+        });
+        if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = `${activeWfh.length} tercatat WFH`;
+      } else {
+        tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Tidak ada pegawai PPPK yang tercatat pada data WFH di rentang tanggal ini</td></tr>';
+        if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
       }
-    );
-
-  }
-
-  else{
-
-    tbPppk.innerHTML=
-      '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:20px">Template PPPK tidak diupload</td></tr>';
-
-  }
-
-
-  const barPppk=
-    document.getElementById('barPppk');
-
-  if(barPppk){
-
-    if(pppkRevCount>0){
-
-      barPppk.style.display='flex';
-
-      document
-        .getElementById('countPppk')
-        .textContent=pppkRevCount;
-
+    } else if(d.pppk && !d.has_wfh){
+      tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File WFH tidak diupload</td></tr>';
+      if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
+    } else if(!d.pppk){
+      tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PPPK tidak diupload</td></tr>';
+      if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
     }
-
-    else{
-
-      barPppk.style.display='none';
-
-    }
-
   }
 
-
-  /* ── UNMATCHED TAB ── */
-
-  const tbUnm=
-    document.getElementById('tbUnm');
-
-  tbUnm.innerHTML='';
-
-
-  if(
-    d.unmatched_fp &&
-    d.unmatched_fp.length>0
-  ){
-
-    d.unmatched_fp.forEach(
-      u=>{
-
-        tbUnm.innerHTML+=`
-
+  // 5. Unmatched
+  const tbUnm = document.getElementById('tbUnm');
+  if(tbUnm){
+    tbUnm.innerHTML = '';
+    if(d.unmatched_fp && d.unmatched_fp.length > 0){
+      d.unmatched_fp.forEach(u => {
+        tbUnm.innerHTML += `
           <tr>
-
-            <td
-              style="
-                font-weight:600;
-                color:var(--accent2)
-              "
-            >
-              ${u.fp_id}
-            </td>
-
-            <td>
-              ${u.fp_name}
-            </td>
-
+            <td style="font-weight:600;color:var(--accent2)">${u.fp_id}</td>
+            <td>${u.fp_name}</td>
           </tr>
-
         `;
-
-      }
-    );
-
+      });
+    } else {
+      tbUnm.innerHTML = '<tr><td colspan="2" style="color:var(--green);text-align:center;padding:20px">✅ Semua data absensi tercocokkan ke template!</td></tr>';
+    }
   }
-
-  else{
-
-    tbUnm.innerHTML=
-      '<tr><td colspan="2" style="color:var(--green);text-align:center;padding:20px">✅ Semua pegawai tercocokkan!</td></tr>';
-
-  }
-
-
-  /* ── Statistics ── */
 
   updateStats();
-
-
-  /* ── Warning toast ── */
-
-  const totalRev=
-    pnsRevCount+
-    pppkRevCount;
-
-  if(totalRev>0){
-
-    toast(
-      `⚠️ Ada ${totalRev} nama berstatus "Perlu Review". Gunakan tombol Masukkan / Abaikan untuk menentukan.`,
-      'info'
-    );
-
-  }
-
 }
 
 
 /* ── Decision Handling ── */
 
-function setDecision(
-  tplType,
-  row,
-  choice,
-  encName
-){
+function setDecision(tplType, source, row, choice, encName){
+  if(!userDecisions[tplType]) userDecisions[tplType] = {};
+  if(!userDecisions[tplType][row]) userDecisions[tplType][row] = { wfo: null, wfh: null };
 
-  if(!userDecisions[tplType]){
-    userDecisions[tplType]={};
+  const prev = userDecisions[tplType][row][source];
+  if(prev === choice){
+    userDecisions[tplType][row][source] = null;
+  } else {
+    userDecisions[tplType][row][source] = choice;
   }
 
-  userDecisions[tplType][row]=choice;
-
-
-  if(encName){
-
-    const empName=
-      decodeURIComponent(encName);
-
-    userDecisions[tplType][empName]=choice;
-
+  const empName = encName ? decodeURIComponent(encName) : null;
+  if(empName){
+    userDecisions[tplType][empName] = Object.assign({}, userDecisions[tplType][row]);
   }
 
-
-  updateRowUI(
-    tplType,
-    row,
-    choice
-  );
-
+  updateRowUI(tplType, source, row);
   updateStats();
-
   saveDecisionsToServer();
 
-
-  if(choice==='include'){
-
-    toast(
-      '✅ Pilihan tersimpan: Data pegawai akan dimasukkan ke Excel',
-      'success'
-    );
-
+  const cur = userDecisions[tplType][row][source];
+  const srcUpper = source.toUpperCase();
+  if(cur === true){
+    toast(`✅ ${srcUpper} baris #${row} dimasukkan`, 'success');
+  } else if(cur === false){
+    toast(`❌ ${srcUpper} baris #${row} diabaikan`, 'info');
+  } else {
+    toast(`Keputusan ${srcUpper} baris #${row} dinetralkan`, 'info');
   }
-
-  else{
-
-    toast(
-      '❌ Pilihan tersimpan: Data pegawai diabaikan',
-      'info'
-    );
-
-  }
-
 }
 
 
 /* ── Update Row UI ── */
 
-function updateRowUI(
-  tplType,
-  row,
-  choice
-){
+function updateRowUI(tplType, source, row){
+  const src = source.toLowerCase();
+  const SRC = source.toUpperCase();
+  const group = document.getElementById(`group_${SRC}_${tplType}_${row}`);
+  const statusEl = document.getElementById(`status_${SRC}_${tplType}_${row}`);
+  if(!group || !statusEl) return;
 
-  const badge=
-    document.getElementById(
-      `badge_${tplType}_${row}`
-    );
+  const rowDec = userDecisions[tplType] && userDecisions[tplType][row]
+    ? userDecisions[tplType][row]
+    : null;
+  const choice = rowDec ? rowDec[src] : null;
 
-  const group=
-    document.getElementById(
-      `group_${tplType}_${row}`
-    );
+  const btnInc = group.querySelector('.btn-rev-inc');
+  const btnIgn = group.querySelector('.btn-rev-ign');
 
-  if(!badge || !group){
-    return;
+  if(choice === true){
+    if(btnInc) btnInc.classList.add('active');
+    if(btnIgn) btnIgn.classList.remove('active');
+    statusEl.innerHTML = '<span style="color:#059669;font-weight:700">✅ Masukkan</span>';
+  } else if(choice === false){
+    if(btnInc) btnInc.classList.remove('active');
+    if(btnIgn) btnIgn.classList.add('active');
+    statusEl.innerHTML = '<span style="color:var(--red);font-weight:700">❌ Diabaikan</span>';
+  } else {
+    if(btnInc) btnInc.classList.remove('active');
+    if(btnIgn) btnIgn.classList.remove('active');
+    statusEl.innerHTML = '<span style="color:var(--amber2);font-weight:600">⏳ Belum Dipilih</span>';
   }
-
-
-  const btnInc=
-    group.querySelector(
-      '.btn-rev-inc'
-    );
-
-  const btnIgn=
-    group.querySelector(
-      '.btn-rev-ign'
-    );
-
-
-  if(choice==='include'){
-
-    badge.className=
-      'badge badge-ok';
-
-    badge.textContent=
-      '✅ Dimasukkan';
-
-    if(btnInc){
-      btnInc.classList.add('active');
-    }
-
-    if(btnIgn){
-      btnIgn.classList.remove('active');
-    }
-
-  }
-
-  else if(choice==='ignore'){
-
-    badge.className=
-      'badge badge-fail';
-
-    badge.textContent=
-      '❌ Diabaikan';
-
-    if(btnInc){
-      btnInc.classList.remove('active');
-    }
-
-    if(btnIgn){
-      btnIgn.classList.add('active');
-    }
-
-  }
-
 }
 
 
-/* ── Bulk Decision ── */
+/* ── Bulk Decision (Seluruh Section 2) ── */
 
-function bulkDecision(
-  tplType,
-  choice
-){
+function bulkDecisionAll(action){
+  if(!previewData) return;
+  let count = 0;
 
-  if(!previewData){
-    return;
-  }
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
 
-  const key=
-    tplType.toLowerCase();
+    ['wfo', 'wfh'].forEach(src => {
+      const list = previewData[key][src] || (src === 'wfo' ? previewData[key].matches_fp : previewData[key].matches_wfh);
+      if(!list) return;
 
-  if(!previewData[key]){
-    return;
-  }
+      list.forEach(m => {
+        if(!m.fp_id) return;
+        if(!userDecisions[tplType][m.tpl_row]){
+          userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+        }
 
-  if(!userDecisions[tplType]){
-    userDecisions[tplType]={};
-  }
-
-
-  let count=0;
-
-
-  previewData[key].matches.forEach(
-    m=>{
-
-      if(
-        m.fp_id &&
-        m.needs_review
-      ){
-
-        userDecisions[tplType][m.tpl_row]=choice;
-
-        userDecisions[tplType][m.tpl_name]=choice;
-
-        updateRowUI(
-          tplType,
-          m.tpl_row,
-          choice
-        );
-
-        count++;
-
-      }
-
-    }
-  );
-
+        if(action === 'include_all'){
+          userDecisions[tplType][m.tpl_row][src] = true;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        } else if(action === 'ignore_all'){
+          userDecisions[tplType][m.tpl_row][src] = false;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        }
+      });
+    });
+  });
 
   updateStats();
-
   saveDecisionsToServer();
 
-
-  if(choice==='include'){
-
-    toast(
-      `✅ ${count} nama ${tplType} disetujui untuk dimasukkan!`,
-      'success'
-    );
-
+  if(action === 'include_all'){
+    toast(`✅ Seluruh data di Section 2 (${count} data, termasuk <80%) berhasil dimasukkan!`, 'success');
+  } else {
+    toast(`❌ Seluruh data di Section 2 (${count} data) diatur untuk diabaikan!`, 'info');
   }
+}
 
-  else{
 
-    toast(
-      `❌ ${count} nama ${tplType} diatur untuk diabaikan!`,
-      'info'
-    );
+/* ── Bulk Decision per Tab (WFO / WFH) ── */
 
+function bulkDecision(source, action){
+  if(!previewData) return;
+  const src = source.toLowerCase();
+  const SRC = source.toUpperCase();
+  let count = 0;
+
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    const list = previewData[key][src] || (src === 'wfo' ? previewData[key].matches_fp : previewData[key].matches_wfh);
+    if(!list) return;
+
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
+
+    list.forEach(m => {
+      if(!m.fp_id) return;
+      if(!userDecisions[tplType][m.tpl_row]){
+        userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+      }
+
+      if(action === 'include_all'){
+        userDecisions[tplType][m.tpl_row][src] = true;
+        if(m.tpl_name){
+          userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+        }
+        updateRowUI(tplType, src, m.tpl_row);
+        count++;
+      } else if(action === 'choose_recommended'){
+        if(m.rec_level === 'high' || m.score >= 80){
+          userDecisions[tplType][m.tpl_row][src] = true;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        }
+      } else if(action === 'ignore_all'){
+        userDecisions[tplType][m.tpl_row][src] = false;
+        if(m.tpl_name){
+          userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+        }
+        updateRowUI(tplType, src, m.tpl_row);
+        count++;
+      }
+    });
+  });
+
+  updateStats();
+  saveDecisionsToServer();
+
+  if(action === 'include_all'){
+    toast(`✅ Seluruh data ${SRC} (${count} data, termasuk <80%) berhasil dimasukkan!`, 'success');
+  } else if(action === 'choose_recommended'){
+    toast(`✅ ${count} data ${SRC} berstatus Sangat Cocok (≥80%) dipilih!`, 'success');
+  } else {
+    toast(`❌ Seluruh data ${SRC} (${count} data) diatur untuk diabaikan!`, 'info');
   }
-
 }
 
 
 /* ── Save Decisions ── */
 
 function saveDecisionsToServer(){
-
   clearTimeout(saveTimer);
-
-  saveTimer=setTimeout(
-    ()=>{
-
-      fetch(
-        '/save-decisions',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':
-              'application/json'
-          },
-          body:JSON.stringify({
-            decisions:userDecisions
-          })
-        }
-      )
-      .catch(
-        e=>
-          console.warn(
-            'Sync decisions error:',
-            e
-          )
-      );
-
-    },
-    250
-  );
-
+  saveTimer = setTimeout(() => {
+    fetch('/save-decisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decisions: userDecisions })
+    }).catch(e => console.warn('Sync decisions error:', e));
+  }, 250);
 }
 
 
 /* ── Statistics ── */
 
 function updateStats(){
+  if(!previewData) return;
 
-  if(!previewData){
-    return;
-  }
+  let pnsFilled = 0;
+  let pppkFilled = 0;
+  let pendingWfo = 0;
+  let pendingWfh = 0;
+  let totalEmployees = 0;
 
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    const wfoList = previewData[key].wfo || previewData[key].matches_fp || [];
+    const wfhList = previewData[key].wfh || previewData[key].matches_wfh || [];
 
-  let pnsAuto=0;
-  let pnsInc=0;
-  let pnsIgn=0;
-  let pnsPending=0;
+    totalEmployees += previewData[key].total || wfoList.length;
 
-  let pppkAuto=0;
-  let pppkInc=0;
-  let pppkIgn=0;
-  let pppkPending=0;
+    const filledRows = new Set();
 
-
-  if(previewData.pns){
-
-    previewData.pns.matches.forEach(
-      m=>{
-
-        if(!m.fp_id){
-          return;
-        }
-
-        if(
-          !m.needs_review &&
-          m.score>=65
-        ){
-
-          pnsAuto++;
-
-        }
-
-        else if(m.needs_review){
-
-          const dec=
-            userDecisions.PNS
-              ? userDecisions.PNS[m.tpl_row]
-              : null;
-
-          if(dec==='include'){
-            pnsInc++;
-          }
-
-          else if(dec==='ignore'){
-            pnsIgn++;
-          }
-
-          else{
-            pnsPending++;
-          }
-
-        }
-
+    wfoList.forEach(m => {
+      if(!m.fp_id) return;
+      const dec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row];
+      if(dec && dec.wfo === true){
+        filledRows.add(m.tpl_row);
+      } else if(!dec || dec.wfo === null || dec.wfo === undefined){
+        pendingWfo++;
       }
-    );
+    });
 
-  }
-
-
-  if(previewData.pppk){
-
-    previewData.pppk.matches.forEach(
-      m=>{
-
-        if(!m.fp_id){
-          return;
-        }
-
-        if(
-          !m.needs_review &&
-          m.score>=65
-        ){
-
-          pppkAuto++;
-
-        }
-
-        else if(m.needs_review){
-
-          const dec=
-            userDecisions.PPPK
-              ? userDecisions.PPPK[m.tpl_row]
-              : null;
-
-          if(dec==='include'){
-            pppkInc++;
-          }
-
-          else if(dec==='ignore'){
-            pppkIgn++;
-          }
-
-          else{
-            pppkPending++;
-          }
-
-        }
-
+    wfhList.forEach(m => {
+      if(!m.fp_id || m.score === 0) return;
+      const dec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row];
+      if(dec && dec.wfh === true){
+        filledRows.add(m.tpl_row);
+      } else if(!dec || dec.wfh === null || dec.wfh === undefined){
+        pendingWfh++;
       }
-    );
+    });
 
+    if(tplType === 'PNS'){
+      pnsFilled = filledRows.size;
+    } else {
+      pppkFilled = filledRows.size;
+    }
+  });
+
+  const totalPending = pendingWfo + pendingWfh;
+  const totalUnmatched = (previewData.unmatched_fp ? previewData.unmatched_fp.length : 0);
+
+  const xAllEl = document.getElementById('xAll');
+  if(xAllEl) xAllEl.textContent = totalEmployees;
+
+  const xPnsEl = document.getElementById('xPns');
+  if(xPnsEl) xPnsEl.textContent = pnsFilled;
+
+  const xPppkEl = document.getElementById('xPppk');
+  if(xPppkEl) xPppkEl.textContent = pppkFilled;
+
+  const xRevEl = document.getElementById('xRev');
+  if(xRevEl) xRevEl.textContent = totalPending;
+
+  const xUnmEl = document.getElementById('xUnm');
+  if(xUnmEl) xUnmEl.textContent = totalUnmatched;
+
+  // Update Toolbar Section 2 (Global), WFO & WFH
+  const barSec2 = document.getElementById('barSec2');
+  if(barSec2){
+    barSec2.style.display = totalEmployees > 0 ? 'flex' : 'none';
   }
 
+  const barWfo = document.getElementById('barWfo');
+  const countWfoEl = document.getElementById('countWfo');
+  if(barWfo){
+    if(countWfoEl) countWfoEl.textContent = pendingWfo;
+    const hasWfoData = previewData && ((previewData.pns && previewData.pns.wfo && previewData.pns.wfo.length > 0) ||
+                                       (previewData.pppk && previewData.pppk.wfo && previewData.pppk.wfo.length > 0));
+    barWfo.style.display = hasWfoData ? 'flex' : 'none';
+  }
 
-  const totalPnsFilled=
-    pnsAuto+
-    pnsInc;
+  const barWfh = document.getElementById('barWfh');
+  const countWfhEl = document.getElementById('countWfh');
+  if(barWfh){
+    if(countWfhEl) countWfhEl.textContent = pendingWfh;
+    const hasWfhData = previewData && ((previewData.pns && previewData.pns.wfh && previewData.pns.wfh.length > 0) ||
+                                       (previewData.pppk && previewData.pppk.wfh && previewData.pppk.wfh.length > 0));
+    barWfh.style.display = hasWfhData ? 'flex' : 'none';
+  }
 
-  const totalPppkFilled=
-    pppkAuto+
-    pppkInc;
-
-  const totalPendingReview=
-    pnsPending+
-    pppkPending;
-
-  const totalUnmatched=
-    (
-      previewData.unmatched_fp
-        ? previewData.unmatched_fp.length
-        : 0
-    )
-    +
-    pnsIgn+
-    pppkIgn;
-
-  const totalAll=
-    totalPnsFilled+
-    totalPppkFilled+
-    totalPendingReview+
-    totalUnmatched;
-
-
-  document
-    .getElementById('xAll')
-    .textContent=totalAll;
-
-  document
-    .getElementById('xPns')
-    .textContent=totalPnsFilled;
-
-  document
-    .getElementById('xPppk')
-    .textContent=totalPppkFilled;
-
-  document
-    .getElementById('xRev')
-    .textContent=totalPendingReview;
-
-  document
-    .getElementById('xUnm')
-    .textContent=totalUnmatched;
-
-
-  /* ── Recap Download ── */
-
-  const dlRecap=
-    document.getElementById(
-      'dlRecap'
-    );
-
-
+  // Update Recap Download
+  const dlRecap = document.getElementById('dlRecap');
   if(dlRecap){
-
-    dlRecap.style.display='block';
-
-    const totalIncludedReview=
-      pnsInc+
-      pppkInc;
-
-
-    if(totalIncludedReview>0){
-
-      dlRecap.innerHTML=
-        `✨ <strong>Siap Download:</strong> ${
-          pnsAuto+
-          pppkAuto
-        } pegawai otomatis (Auto-Fill) + <strong>${
-          totalIncludedReview
-        } pegawai hasil review yang Anda pilih "Masukkan"</strong> akan diisi ke file Excel.`;
-
+    dlRecap.style.display = 'block';
+    const totalFilled = pnsFilled + pppkFilled;
+    if(totalFilled > 0){
+      dlRecap.innerHTML = `✨ <strong>Siap Download:</strong> <strong>${totalFilled} pegawai</strong> (${pnsFilled} PNS, ${pppkFilled} PPPK) telah dikonfirmasi untuk diisi ke file Excel.`;
+    } else {
+      dlRecap.innerHTML = `⚠️ <strong>Perhatian:</strong> Belum ada data pegawai yang dipilih (0 dipilih). Jika didownload sekarang, seluruh sel jam masuk & pulang akan dibiarkan kosong.`;
     }
-
-    else{
-
-      dlRecap.innerHTML=
-        `✨ <strong>Siap Download:</strong> ${
-          pnsAuto+
-          pppkAuto
-        } pegawai otomatis (Auto-Fill) akan diisi ke file Excel.`;
-
-    }
-
   }
-
 }
 
 
 /* ── Download ── */
 
 function doDownload(){
+  const startDayEl = document.getElementById('startDay');
+  const endDayEl = document.getElementById('endDay');
+  const startDay = startDayEl ? parseInt(startDayEl.value, 10) : 1;
+  const endDay = endDayEl ? parseInt(endDayEl.value, 10) : 31;
 
-  const btn=
-    document.getElementById(
-      'btnDownload'
-    );
+  const btn = document.getElementById('btnDownload');
+  const sp = document.getElementById('spDl');
 
-  const sp=
-    document.getElementById(
-      'spDl'
-    );
+  btn.disabled = true;
+  sp.style.display = 'block';
 
-  btn.disabled=true;
-  sp.style.display='block';
-
-
-  fetch(
-    '/process',
-    {
-      method:'POST',
-
-      headers:{
-        'Content-Type':
-          'application/json'
-      },
-
-      body:JSON.stringify({
-        decisions:userDecisions
-      })
+  fetch('/process', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      decisions: userDecisions,
+      start_day: startDay,
+      end_day: endDay
+    })
+  })
+  .then(async r => {
+    if(!r.ok){
+      const e = await r.json();
+      throw new Error(e.error || 'Server error');
     }
-  )
-  .then(
-    async r=>{
+    return r.blob();
+  })
+  .then(blob => {
+    btn.disabled = false;
+    sp.style.display = 'none';
 
-      if(!r.ok){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Absensi_Bersih.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-        const e=
-          await r.json();
-
-        throw new Error(
-          e.error ||
-          'Server error'
-        );
-
-      }
-
-      return r.blob();
-
-    }
-  )
-  .then(
-    blob=>{
-
-      btn.disabled=false;
-      sp.style.display='none';
-
-
-      const url=
-        URL.createObjectURL(blob);
-
-      const a=
-        document.createElement('a');
-
-      a.href=url;
-
-      a.download=
-        'Absensi_Bersih.zip';
-
-      document
-        .body
-        .appendChild(a);
-
-      a.click();
-
-      document
-        .body
-        .removeChild(a);
-
-      URL.revokeObjectURL(url);
-
-
-      goStep(3);
-
-      toast(
-        '✅ File Excel berhasil didownload dengan keputusan review Anda!',
-        'success'
-      );
-
-    }
-  )
-  .catch(
-    e=>{
-
-      btn.disabled=false;
-      sp.style.display='none';
-
-      toast(
-        'Gagal: '+e.message,
-        'error'
-      );
-
-    }
-  );
-
+    goStep(3);
+    toast('✅ File Excel berhasil didownload dengan keputusan Anda!', 'success');
+  })
+  .catch(e => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+    toast('Gagal: ' + e.message, 'error');
+  });
 }
 
 
 /* ── Reset ── */
 
 function resetAll(){
+  fpOk = false;
+  pnsOk = false;
+  pppkOk = false;
+  wfhOk = false;
+  selectedWfhFile = null;
+  previewData = null;
+  userDecisions = { PNS: {}, PPPK: {} };
+  saveDecisionsToServer();
 
-  fpOk=false;
-  pnsOk=false;
-  pppkOk=false;
-  wfhOk=false;
-
-  selectedWfhFile=null;
-
-  previewData=null;
-
-  userDecisions={
-    PNS:{},
-    PPPK:{}
-  };
-
-
-  [
-    'fFp',
-    'fPns',
-    'fPppk',
-    'fWfh'
-  ].forEach(
-    id=>{
-      document
-        .getElementById(id)
-        .value='';
-    }
-  );
-
-
-  document
-    .getElementById('periodWeek')
-    .selectedIndex=0;
-
-  document
-    .getElementById('periodMonth')
-    .selectedIndex=0;
-
-
-  document
-    .querySelector(
-      'input[name=period_type][value=mingguan]'
-    )
-    .checked=true;
-
-
-  togglePeriod();
-
-
-  [
-    'iFp',
-    'iPns',
-    'iPppk',
-    'iWfh'
-  ].forEach(
-    id=>{
-
-      const el=
-        document.getElementById(id);
-
-      el.classList.remove(
-        'show',
-        'ok'
-      );
-
-    }
-  );
-
-
-  [
-    'zFp',
-    'zPns',
-    'zPppk',
-    'zWfh'
-  ].forEach(
-    id=>
-      document
-        .getElementById(id)
-        .classList.remove('done','uploaded')
-  );
-
-
-  document
-    .getElementById('pFp')
-    .style.display='none';
-
-  document
-    .getElementById('pWfh')
-    .style.display='none';
-
-
-  document
-    .getElementById('btnPreview')
-    .disabled=true;
-
-
-  goStep(1);
-
-  showSec('secUpload');
-
-
-  window.scrollTo({
-    top:0,
-    behavior:'smooth'
+  ['fFp', 'fPns', 'fPppk', 'fWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
   });
 
+  const startDayEl = document.getElementById('startDay');
+  if(startDayEl) startDayEl.value = '1';
+  const endDayEl = document.getElementById('endDay');
+  if(endDayEl) endDayEl.value = '31';
 
-  toast(
-    'Siap untuk file baru!',
-    'info'
-  );
+  ['iFp', 'iPns', 'iPppk', 'iWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('show', 'ok');
+  });
 
+  ['zFp', 'zPns', 'zPppk', 'zWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('done', 'uploaded');
+  });
+
+  const pFp = document.getElementById('pFp');
+  if(pFp) pFp.style.display = 'none';
+  const pWfh = document.getElementById('pWfh');
+  if(pWfh) pWfh.style.display = 'none';
+
+  const btnPreview = document.getElementById('btnPreview');
+  if(btnPreview) btnPreview.disabled = true;
+
+  goStep(1);
+  showSec('secUpload');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('Siap untuk file baru!', 'info');
 }
 
 </script>
