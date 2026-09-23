@@ -19,16 +19,19 @@ from flask import Flask, render_template, request, send_file, jsonify, session
 import xlrd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.utils import get_column_letter
 
 app = Flask(__name__)
 app.secret_key = "absensi_cleaner_v2_2026"
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Auto-match threshold: skor >= ini → langsung diisi ke template
-# 80 dipilih agar hanya yang benar-benar yakin yang auto-fill,
-# sisanya masuk 'Perlu Review' agar user bisa pilih sendiri (Masukkan / Abaikan)
+# Auto-match threshold: skor >= ini → rekomendasi sangat cocok
 AUTO_MATCH_THRESHOLD = 80
+
+# Pilihan dropdown untuk kolom K (Keterangan) di sheet Input Data Absen
+DROPDOWN_KETERANGAN_FORMULA = '"H,WFH,S,DL,DK,TK,I,IT"'
 
 
 # ══════════════════════════════════════════════════════════════
@@ -268,7 +271,7 @@ def time_earlier(t1, t2):
         return False
 
 
-def clean_fingerprint(rows):
+def clean_fingerprint(rows, start_day=1, end_day=31):
     """
     Clean fingerprint data. Returns:
       fp_names:  {fp_id: canonical_name}
@@ -318,6 +321,10 @@ def clean_fingerprint(rows):
         if day is None or time_str is None:
             continue
 
+        # Filter tanggal sesuai rentang yang dipilih
+        if day < start_day or day > end_day:
+            continue
+
         # Simpan nama kanonik per ID
         if no_id not in fp_names:
             fp_names[no_id] = nama
@@ -342,7 +349,7 @@ def clean_fingerprint(rows):
 #  WFH DATA: READ & CLEAN (Google Forms Excel)
 # ══════════════════════════════════════════════════════════════
 
-def read_wfh_data(filepath):
+def read_wfh_data(filepath, start_day=1, end_day=31):
     """
     Baca dan proses data WFH dari Excel (Google Forms export).
 
@@ -398,6 +405,9 @@ def read_wfh_data(filepath):
     # Ekstrak day (int) dan jam (HH:MM)
     df['_day'] = df[col_timestamp].dt.day
     df['_time'] = df[col_timestamp].dt.strftime('%H:%M')
+
+    # Filter tanggal sesuai rentang yang dipilih
+    df = df[(df['_day'] >= start_day) & (df['_day'] <= end_day)]
 
     # Normalisasi nama dan kehadiran
     df['_nama'] = df[col_nama].astype(str).str.strip()
@@ -517,6 +527,7 @@ def read_template_employees(filepath):
     """
     Read employee names from Input Data Absen sheet.
     Returns list of {row: int, name: str} (row = Excel row number).
+    Dilengkapi fallback ke sheet 'Database' jika cache formula di Input Data Absen kosong.
     """
     wb = load_workbook(filepath, read_only=True, data_only=True)
 
@@ -525,12 +536,25 @@ def read_template_employees(filepath):
     for r in range(6, ws.max_row + 1):
         no = ws.cell(r, 1).value
         nama = ws.cell(r, 2).value
-        if no is not None and nama and str(nama).strip():
+        if no is not None and nama and str(nama).strip() and not str(nama).startswith("="):
             employees.append({
                 "row": r,
                 "no": no,
                 "name": str(nama).strip(),
             })
+
+    # Fallback ke sheet 'Database' jika formula belum dievaluasi cache-nya
+    if not employees and 'Database' in wb.sheetnames:
+        ws_db = wb['Database']
+        for r_db in range(5, ws_db.max_row + 1):
+            no = ws_db.cell(r_db, 1).value
+            nama = ws_db.cell(r_db, 2).value
+            if no is not None and nama and str(nama).strip():
+                employees.append({
+                    "row": r_db + 1,
+                    "no": no,
+                    "name": str(nama).strip(),
+                })
 
     wb.close()
     return employees
@@ -565,55 +589,62 @@ def is_empty_time_cell(value):
     return False
 
 
-def fill_template(src_path, out_path, matching, fp_data, decisions=None):
+def apply_keterangan_dropdown(ws, employees=None):
     """
-    Copy template, fill M/P columns in 'Input Data Absen'.
-    matching  = [{tpl_row, tpl_name, fp_id, score, match_type, needs_review}, ...]
-    fp_data   = {fp_id: {day: {masuk: 'HH:MM', keluar: 'HH:MM'}}}
-    decisions = {tpl_row_str_or_name: 'include' | 'ignore', ...}
+    Terapkan Data Validation (dropdown list) pada kolom K (Keterangan) untuk seluruh hari 1 s/d 31.
+    Pilihan dropdown: H, WFH, S, DL, DK, TK, I, IT.
+    """
+    if employees:
+        min_row = min(e["row"] for e in employees)
+        max_row = max(e["row"] for e in employees)
+    else:
+        emp_rows = []
+        for r in range(6, ws.max_row + 1):
+            no = ws.cell(r, 1).value
+            nama = ws.cell(r, 2).value
+            if no is not None and nama and str(nama).strip():
+                emp_rows.append(r)
+        if emp_rows:
+            min_row, max_row = min(emp_rows), max(emp_rows)
+        else:
+            min_row, max_row = 6, max(ws.max_row, 31)
 
-    Case 2 — keep_vba=True untuk .xlsm: preserves Data Validation (dropdown kolom K)
-    Case 3 — Auto-fill jika score >= AUTO_MATCH_THRESHOLD dan tidak needs_review,
-             ATAU jika user memilih 'include'/'masukkan' untuk item review
-    Case 4 — Sel jam yang kosong / 00:00 diberi warna merah (data tidak tersedia)
+    dv = DataValidation(
+        type="list",
+        formula1=DROPDOWN_KETERANGAN_FORMULA,
+        allow_blank=True
+    )
+    ws.add_data_validation(dv)
+    for day in range(1, 32):
+        col_k = 3 * day + 2
+        col_letter = get_column_letter(col_k)
+        dv.add(f"{col_letter}{min_row}:{col_letter}{max_row}")
+    return dv
+
+
+def fill_template(src_path, out_path, employees, fp_names, fp_data, wfh_names, wfh_data, decisions=None, start_day=1, end_day=31):
     """
-    # Salin file asli agar tidak berubah
+    Copy template, fill K/M/P columns in 'Input Data Absen'.
+    - Kolom K (Keterangan): diisi 'H' untuk WFO, 'WFH' untuk WFH sesuai sumber data yang dipilih.
+    - Kolom M (Masuk) & P (Pulang): diisi jam absen.
+    - Keputusan manual penuh: data baru masuk jika dipilih secara eksplisit oleh user.
+    - Hanya tanggal dalam rentang start_day s/d end_day yang diproses.
+    """
     shutil.copy2(src_path, out_path)
-
-    # Case 2: keep_vba=True untuk .xlsm agar Data Validation (dropdown) tidak hilang
     ext = os.path.splitext(src_path)[1].lower()
     wb = load_workbook(out_path, keep_vba=(ext == ".xlsm"))
     ws = wb['Input Data Absen']
-
-    # Case 4: Warna merah untuk sel kosong / 00:00
     red_fill = PatternFill(start_color="FFC0392B", end_color="FFC0392B", fill_type="solid")
 
-    filled_count = 0
-
-    # Kumpulkan semua baris karyawan (untuk pass merah nanti)
-    employee_rows = set()
-
-    # Kumpulkan semua hari yang ada data di fingerprint
-    valid_days = set()
-    for days_data in fp_data.values():
-        valid_days.update(d for d in days_data.keys() if 1 <= d <= 31)
-
     decisions = decisions or {}
+    employee_rows = set()
+    filled_cells = set()
 
-    for m in matching:
-        fp_id        = m.get("fp_id")
-        score        = m.get("score", 0)
-        needs_review = m.get("needs_review", False)
-        tpl_row      = m["tpl_row"]
-        tpl_name     = m.get("tpl_name", "")
-
+    for emp in employees:
+        tpl_row = emp["row"]
+        tpl_name = emp["name"]
         employee_rows.add(tpl_row)
 
-        if not fp_id or fp_id not in fp_data:
-            # Tidak ada ID / data fingerprint untuk pegawai ini
-            continue
-
-        # Cek keputusan user jika ada (bisa berdasarkan row string/int atau nama)
         user_choice = (
             decisions.get(str(tpl_row)) or 
             decisions.get(tpl_row) or 
@@ -621,61 +652,102 @@ def fill_template(src_path, out_path, matching, fp_data, decisions=None):
             decisions.get(norm_name(tpl_name))
         )
 
-        should_fill = False
-        if user_choice in ("include", "masukkan"):
-            # User eksplisit memilih 'Masukkan'
-            should_fill = True
-        elif user_choice in ("ignore", "abaikan"):
-            # User eksplisit memilih 'Abaikan'
-            should_fill = False
-        elif score >= AUTO_MATCH_THRESHOLD and not needs_review:
-            # Skor >= 65 dan tidak ambigu: auto-fill tetap otomatis diproses
-            should_fill = True
-        else:
-            # Skor di bawah threshold / perlu review dan belum/tidak dipilih masukkan
-            should_fill = False
+        use_wfo = False
+        use_wfh = False
 
-        if not should_fill:
-            # Baris ini tidak diisi (akan ditandai merah di pass berikutnya)
+        if isinstance(user_choice, dict):
+            use_wfo = bool(user_choice.get("wfo"))
+            use_wfh = bool(user_choice.get("wfh"))
+        elif isinstance(user_choice, str):
+            c_low = user_choice.lower().strip()
+            if c_low in ("wfo", "fingerprint"):
+                use_wfo = True
+            elif c_low in ("wfh",):
+                use_wfh = True
+            elif c_low in ("both", "include", "masukkan"):
+                use_wfo = True
+                use_wfh = True
+            elif c_low in ("ignore", "abaikan"):
+                use_wfo = False
+                use_wfh = False
+
+        # ATURAN UTAMA: Tidak ada auto-fill! Jika user tidak memilih / abaikan, jangan isi data!
+        if not (use_wfo or use_wfh):
             continue
 
-        days_data = fp_data[fp_id]
+        # 1. Tulis data WFO jika user memilih WFO
+        if use_wfo and fp_names:
+            f_id, _, _, _ = find_best_match(tpl_name, fp_names)
+            if f_id and f_id in fp_data:
+                for day, times in fp_data[f_id].items():
+                    if start_day <= day <= end_day:
+                        col_k = 3 * day + 2
+                        col_m = 3 * day + 3
+                        col_p = 3 * day + 4
+                        wfo_has_data = False
+                        if "masuk" in times:
+                            t = time_str_to_dt(times["masuk"])
+                            if t:
+                                ws.cell(row=tpl_row, column=col_m, value=t)
+                                filled_cells.add((tpl_row, col_m))
+                                wfo_has_data = True
+                        if "keluar" in times:
+                            t = time_str_to_dt(times["keluar"])
+                            if t:
+                                ws.cell(row=tpl_row, column=col_p, value=t)
+                                filled_cells.add((tpl_row, col_p))
+                                wfo_has_data = True
+                        if wfo_has_data:
+                            ws.cell(row=tpl_row, column=col_k, value="H")
+                            filled_cells.add((tpl_row, col_k))
 
-        for day, times in days_data.items():
-            if day < 1 or day > 31:
-                continue
+        # 2. Tulis data WFH jika user memilih WFH
+        if use_wfh and wfh_names:
+            w_id, _, _, _ = find_best_match(tpl_name, wfh_names)
+            if w_id and w_id in wfh_data:
+                for day, times in wfh_data[w_id].items():
+                    if start_day <= day <= end_day:
+                        col_k = 3 * day + 2
+                        col_m = 3 * day + 3
+                        col_p = 3 * day + 4
+                        wfh_has_data = False
+                        # Jika hanya WFH yang dipilih, atau sel belum diisi oleh WFO
+                        if (tpl_row, col_m) not in filled_cells or not use_wfo:
+                            if "masuk" in times:
+                                t = time_str_to_dt(times["masuk"])
+                                if t:
+                                    ws.cell(row=tpl_row, column=col_m, value=t)
+                                    filled_cells.add((tpl_row, col_m))
+                                    wfh_has_data = True
+                        if (tpl_row, col_p) not in filled_cells or not use_wfo:
+                            if "keluar" in times:
+                                t = time_str_to_dt(times["keluar"])
+                                if t:
+                                    ws.cell(row=tpl_row, column=col_p, value=t)
+                                    filled_cells.add((tpl_row, col_p))
+                                    wfh_has_data = True
+                        if wfh_has_data and ((tpl_row, col_k) not in filled_cells or not use_wfo):
+                            ws.cell(row=tpl_row, column=col_k, value="WFH")
+                            filled_cells.add((tpl_row, col_k))
 
-            # Mapping: tanggal d → kolom Masuk = 3*d+3, kolom Pulang = 3*d+4
-            col_m = 3 * day + 3
-            col_p = 3 * day + 4
-
-            if "masuk" in times:
-                t = time_str_to_dt(times["masuk"])
-                if t:
-                    ws.cell(row=tpl_row, column=col_m, value=t)
-                    filled_count += 1
-
-            if "keluar" in times:
-                t = time_str_to_dt(times["keluar"])
-                if t:
-                    ws.cell(row=tpl_row, column=col_p, value=t)
-                    filled_count += 1
-
-    # Case 4: Pass kedua — tandai sel jam yang kosong/00:00 dengan warna merah
-    # Hanya untuk hari yang ada di data fingerprint (valid_days)
-    # Menangkap: None, 0, "", time(0,0,0) = semua kondisi "tidak terisi"
+    # Pass kedua: Beri warna merah HANYA untuk hari dalam rentang [start_day, end_day]
+    # pada sel jam yang kosong / belum terisi
     for tpl_row in employee_rows:
-        for day in valid_days:
-            col_m = 3 * day + 3
-            col_p = 3 * day + 4
-            for col in (col_m, col_p):
-                cell = ws.cell(row=tpl_row, column=col)
-                if is_empty_time_cell(cell.value):
-                    cell.fill = red_fill
+        for day in range(start_day, end_day + 1):
+            if 1 <= day <= 31:
+                col_m = 3 * day + 3
+                col_p = 3 * day + 4
+                for col in (col_m, col_p):
+                    cell = ws.cell(row=tpl_row, column=col)
+                    if is_empty_time_cell(cell.value):
+                        cell.fill = red_fill
+
+    # Pass ketiga: Terapkan Data Validation dropdown pada kolom K (Keterangan) untuk seluruh hari (1 s/d 31)
+    apply_keterangan_dropdown(ws, employees)
 
     wb.save(out_path)
     wb.close()
-    return filled_count
+    return len(filled_cells)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -906,19 +978,32 @@ def preview():
     if not pns_path and not pppk_path:
         return jsonify({"error": "Minimal upload 1 template (PNS atau PPPK)"}), 400
 
+    data = request.get_json(silent=True) or {}
     try:
-        # 1. Parse data WFO (fingerprint) jika ada
+        start_day = int(data.get("start_day") or session.get("start_day") or 1)
+        end_day = int(data.get("end_day") or session.get("end_day") or 31)
+    except Exception:
+        start_day, end_day = 1, 31
+
+    if start_day > end_day:
+        start_day, end_day = end_day, start_day
+
+    session["start_day"] = start_day
+    session["end_day"] = end_day
+
+    try:
+        # 1. Parse data WFO (fingerprint) jika ada dengan filter rentang tanggal
         fp_names, fp_data = {}, {}
         if has_fp:
             rows = read_fingerprint(fp_path)
-            fp_names, fp_data = clean_fingerprint(rows)
+            fp_names, fp_data = clean_fingerprint(rows, start_day=start_day, end_day=end_day)
 
-        # 2. Parse data WFH jika ada
+        # 2. Parse data WFH jika ada dengan filter rentang tanggal
         wfh_names, wfh_data = {}, {}
         if has_wfh:
-            wfh_names, wfh_data = read_wfh_data(wfh_path)
+            wfh_names, wfh_data = read_wfh_data(wfh_path, start_day=start_day, end_day=end_day)
 
-        # 3. Merge WFO + WFH → unified data
+        # 3. Unified data untuk unmatched check
         if has_fp and has_wfh:
             merged_names, merged_data = merge_attendance_data(
                 fp_names, fp_data, wfh_names, wfh_data
@@ -928,57 +1013,107 @@ def preview():
         else:
             merged_names, merged_data = wfh_names, wfh_data
 
-        result = {"pns": None, "pppk": None, "unmatched_fp": []}
+        result = {
+            "pns": None,
+            "pppk": None,
+            "unmatched_fp": [],
+            "has_fp": bool(has_fp and fp_names),
+            "has_wfh": bool(has_wfh and wfh_names),
+            "start_day": start_day,
+            "end_day": end_day,
+        }
         matched_fp_ids = set()
+
+        def get_rec(score):
+            if score >= AUTO_MATCH_THRESHOLD:
+                return "high", f"Sangat Cocok ({score}%)"
+            elif score >= 40:
+                return "mid", f"Perlu Diperiksa ({score}%)"
+            elif score > 0:
+                return "low", f"Kecocokan Rendah ({score}%)"
+            return "none", "Tidak Ditemukan"
 
         for tpl_type, tpl_path in [("pns", pns_path), ("pppk", pppk_path)]:
             if not tpl_path or not os.path.exists(tpl_path):
                 continue
 
             employees = read_template_employees(tpl_path)
-            matches = []
+            matches_wfo = []
+            matches_wfh = []
 
             for emp in employees:
-                # 4-tuple: fp_id, score, match_type, needs_review
-                fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
+                # 1. Matching terhadap Fingerprint (WFO)
+                if has_fp and fp_names:
+                    f_id, f_score, f_mtype, _ = find_best_match(emp["name"], fp_names)
+                    f_days = sorted([d for d in fp_data.get(f_id, {}).keys() if start_day <= d <= end_day]) if (f_id and f_id in fp_data) else []
+                else:
+                    f_id, f_score, f_mtype = None, 0, "none"
+                    f_days = []
 
-                # Tentukan sumber data: Fingerprint atau WFH
-                source = ""
-                if fp_id:
-                    source = "WFH" if str(fp_id).startswith("WFH_") else "Fingerprint"
+                # 2. Matching terhadap WFH
+                if has_wfh and wfh_names:
+                    w_id, w_score, w_mtype, _ = find_best_match(emp["name"], wfh_names)
+                    w_days = sorted([d for d in wfh_data.get(w_id, {}).keys() if start_day <= d <= end_day]) if (w_id and w_id in wfh_data) else []
+                else:
+                    w_id, w_score, w_mtype = None, 0, "none"
+                    w_days = []
 
-                match_info = {
-                    "tpl_no":       emp["no"],
-                    "tpl_row":      emp["row"],
-                    "tpl_name":     emp["name"],
-                    "fp_id":        fp_id,
-                    "fp_name":      merged_names.get(fp_id, "") if fp_id else "",
-                    "source":       source,
-                    "score":        score,
-                    "match_type":   mtype,
-                    "needs_review": needs_review,
-                    "days_with_data": 0,
-                }
-                if fp_id and fp_id in merged_data:
-                    match_info["days_with_data"] = len(merged_data[fp_id])
-                    matched_fp_ids.add(fp_id)
-                matches.append(match_info)
+                # Tanggal yang bentrok / muncul di kedua sumber
+                conflict_days = sorted(list(set(f_days) & set(w_days)))
+                has_conflict = len(conflict_days) > 0
 
-            # Hitung matched: hanya yang score >= threshold DAN tidak needs_review (Auto-Fill)
-            matched = sum(
-                1 for m in matches
-                if m["fp_id"] and m["score"] >= AUTO_MATCH_THRESHOLD and not m["needs_review"]
-            )
-            need_review_count = sum(
-                1 for m in matches
-                if m["fp_id"] and m["needs_review"]
-            )
+                f_rec_level, f_rec_label = get_rec(f_score)
+                w_rec_level, w_rec_label = get_rec(w_score)
+
+                if f_id:
+                    matched_fp_ids.add(f_id)
+                if w_id:
+                    matched_fp_ids.add(w_id)
+
+                matches_wfo.append({
+                    "tpl_no":        emp["no"],
+                    "tpl_row":       emp["row"],
+                    "tpl_name":      emp["name"],
+                    "fp_id":         f_id,
+                    "matched_name":  fp_names.get(f_id, "") if f_id else "",
+                    "source":        "WFO",
+                    "score":         f_score,
+                    "match_type":    f_mtype,
+                    "rec_level":     f_rec_level,
+                    "rec_label":     f_rec_label,
+                    "days":          f_days,
+                    "days_count":    len(f_days),
+                    "has_conflict":  has_conflict,
+                    "conflict_days": conflict_days,
+                    "has_wfh":       len(w_days) > 0,
+                    "wfh_days":      w_days,
+                })
+
+                matches_wfh.append({
+                    "tpl_no":        emp["no"],
+                    "tpl_row":       emp["row"],
+                    "tpl_name":      emp["name"],
+                    "fp_id":         w_id,
+                    "matched_name":  wfh_names.get(w_id, "") if w_id else "",
+                    "source":        "WFH",
+                    "score":         w_score,
+                    "match_type":    w_mtype,
+                    "rec_level":     w_rec_level,
+                    "rec_label":     w_rec_label,
+                    "days":          w_days,
+                    "days_count":    len(w_days),
+                    "has_conflict":  has_conflict,
+                    "conflict_days": conflict_days,
+                    "has_wfo":       len(f_days) > 0,
+                    "wfo_days":      f_days,
+                })
+
             result[tpl_type] = {
                 "total":        len(employees),
-                "matched":      matched,
-                "need_review":  need_review_count,
-                "unmatched":    len(employees) - matched - need_review_count,
-                "matches":      matches,
+                "wfo":          matches_wfo,
+                "wfh":          matches_wfh,
+                "matches_fp":   matches_wfo,
+                "matches_wfh":  matches_wfh,
             }
 
         # Employee dari sumber data yang tidak tercocokkan ke mana pun
@@ -989,9 +1124,7 @@ def preview():
                     "fp_name": src_name,
                 })
 
-        # Sertakan keputusan yang tersimpan di session jika ada
         result["saved_decisions"] = session.get("decisions", {})
-
         return jsonify(result)
     except Exception as e:
         import traceback
@@ -1000,7 +1133,7 @@ def preview():
 
 @app.route("/save-decisions", methods=["POST"])
 def save_decisions():
-    """Simpan keputusan user ('include' / 'ignore') untuk item 'Perlu Review' ke session."""
+    """Simpan keputusan user ke session."""
     data = request.get_json(silent=True) or {}
     decisions = data.get("decisions", {})
     session["decisions"] = decisions
@@ -1023,71 +1156,51 @@ def process():
     if not pns_path and not pppk_path:
         return jsonify({"error": "Minimal upload 1 template"}), 400
 
-    # Ambil keputusan user dari request payload atau session
     data = request.get_json(silent=True) or {}
     decisions = data.get("decisions") or session.get("decisions", {})
+    try:
+        start_day = int(data.get("start_day") or session.get("start_day") or 1)
+        end_day = int(data.get("end_day") or session.get("end_day") or 31)
+    except Exception:
+        start_day, end_day = 1, 31
+
+    if start_day > end_day:
+        start_day, end_day = end_day, start_day
 
     try:
-        # 1. Parse data WFO (fingerprint) jika ada
         fp_names, fp_data = {}, {}
         if has_fp:
             rows = read_fingerprint(fp_path)
-            fp_names, fp_data = clean_fingerprint(rows)
+            fp_names, fp_data = clean_fingerprint(rows, start_day=start_day, end_day=end_day)
 
-        # 2. Parse data WFH jika ada
         wfh_names, wfh_data = {}, {}
         if has_wfh:
-            wfh_names, wfh_data = read_wfh_data(wfh_path)
+            wfh_names, wfh_data = read_wfh_data(wfh_path, start_day=start_day, end_day=end_day)
 
-        # 3. Merge WFO + WFH → unified data
-        if has_fp and has_wfh:
-            merged_names, merged_data = merge_attendance_data(
-                fp_names, fp_data, wfh_names, wfh_data
-            )
-        elif has_fp:
-            merged_names, merged_data = fp_names, fp_data
-        else:
-            merged_names, merged_data = wfh_names, wfh_data
-
-        # 4. Proses setiap template dengan merged data
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
-
             for tpl_type, tpl_path in [("PNS", pns_path), ("PPPK", pppk_path)]:
                 if not tpl_path or not os.path.exists(tpl_path):
                     continue
 
                 employees = read_template_employees(tpl_path)
-
-                # Bangun matching list dengan 4-tuple (termasuk needs_review)
-                matching = []
-                for emp in employees:
-                    fp_id, score, mtype, needs_review = find_best_match(emp["name"], merged_names)
-                    matching.append({
-                        "tpl_row":      emp["row"],
-                        "tpl_name":     emp["name"],
-                        "fp_id":        fp_id,
-                        "score":        score,
-                        "match_type":   mtype,
-                        "needs_review": needs_review,
-                    })
-
-                # Ambil keputusan spesifik untuk template ini (PNS / PPPK)
                 tpl_decisions = {}
                 if isinstance(decisions, dict):
                     tpl_decisions = decisions.get(tpl_type) or decisions.get(tpl_type.lower()) or {}
 
-                # Isi template (buat salinan) — unified pipeline WFO+WFH
                 out_path = os.path.join(UPLOAD_FOLDER, f"{tpl_type}_FILLED.xlsx")
-                filled = fill_template(tpl_path, out_path, matching, merged_data, decisions=tpl_decisions)
+                filled = fill_template(
+                    tpl_path, out_path, employees,
+                    fp_names, fp_data, wfh_names, wfh_data,
+                    decisions=tpl_decisions,
+                    start_day=start_day, end_day=end_day
+                )
 
-                # Tambahkan ke ZIP
                 orig_name = session.get(f"tpl_{tpl_type.lower()}_filename", f"{tpl_type}.xlsx")
                 base = os.path.splitext(orig_name)[0]
                 zip_name = f"{base}_TERISI.xlsx"
                 zf.write(out_path, zip_name)
 
-                # Bersihkan file sementara
                 if os.path.exists(out_path):
                     os.remove(out_path)
 
