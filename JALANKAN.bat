@@ -24,9 +24,9 @@ start "" "http://localhost:5000"
 REM Jalankan python secara dinamis (mencari venv lokal atau python sistem)
 
 if exist "%~dp0venv\Scripts\python.exe" (
-    "%~dp0venv\Scripts\python.exe" "%~dp0app.py"
+    "%~dp0venv\Scripts\python.exe" "%~dp0jalankan.py"
 ) else (
-    python "%~dp0app.py"
+    python "%~dp0jalankan.py"
 )
 pause
 

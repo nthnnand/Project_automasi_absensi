@@ -12,7 +12,7 @@ Fixes:
   Case 5 — WFH data processing dari Google Forms Excel + merge dengan WFO
 """
 
-import os, io, re, zipfile, copy, shutil, difflib
+import os, io, re, zipfile, copy, shutil, difflib, sys, socket
 import pandas as pd
 from datetime import time as dt_time
 from flask import Flask, render_template, request, send_file, jsonify, session
@@ -22,9 +22,22 @@ from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
 
-app = Flask(__name__)
+# Penyesuaian path untuk kompatibilitas Windows & Mac (termasuk mode PyInstaller)
+if getattr(sys, 'frozen', False):
+    BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+    APP_DIR = os.path.dirname(sys.executable)
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(BASE_DIR, "templates"),
+        static_folder=os.path.join(BASE_DIR, "static")
+    )
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    APP_DIR = BASE_DIR
+    app = Flask(__name__)
+
 app.secret_key = "absensi_cleaner_v2_2026"
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+UPLOAD_FOLDER = os.path.join(APP_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Auto-match threshold: skor >= ini → rekomendasi sangat cocok
@@ -1216,9 +1229,40 @@ def process():
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 
+def find_available_port(default_port=5000):
+    """Mencari port yang tersedia jika default port (5000) terpakai (misal oleh AirPlay di macOS)."""
+    candidate_ports = [default_port, 5050, 8000, 8080]
+    for p in candidate_ports:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.5)
+            if s.connect_ex(('127.0.0.1', p)) != 0:
+                return p
+    return default_port
+
+
 if __name__ == "__main__":
+    env_port = os.environ.get("PORT")
+    port = int(env_port) if env_port else find_available_port(5000)
+    url = f"http://localhost:{port}"
+
     print("\n" + "=" * 54)
     print("  ABSENSI CLEANER v2 — Web App")
-    print("  Buka browser: http://localhost:5000")
+    print(f"  Buka browser: {url}")
+    if port != 5000:
+        print(f"  [INFO] Port 5000 terpakai (misal AirPlay macOS). Menggunakan port {port}.")
     print("=" * 54 + "\n")
-    app.run(debug=False, port=5000)
+
+    # Otomatis buka browser di Windows maupun Mac
+    def _open_browser():
+        import time, webbrowser
+        time.sleep(1.2)
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+
+    import threading
+    threading.Thread(target=_open_browser, daemon=True).start()
+
+    # host='0.0.0.0' agar bisa diakses dari perangkat lain dalam satu jaringan WiFi kantor
+    app.run(host="0.0.0.0", port=port, debug=False)
