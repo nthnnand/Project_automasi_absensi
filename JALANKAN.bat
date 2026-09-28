@@ -18,8 +18,16 @@ echo      http://localhost:5000
 echo.
 echo  Tekan Ctrl+C untuk menghentikan server.
 echo  ================================================
-echo.
+REM Buka browser otomatis
 start "" "http://localhost:5000"
-C:\Users\Henri\AppData\Local\Programs\Python\Python313\python.exe "%~dp0app.py"
+
+REM Jalankan python secara dinamis (mencari venv lokal atau python sistem)
+
+if exist "%~dp0venv\Scripts\python.exe" (
+    "%~dp0venv\Scripts\python.exe" "%~dp0app.py"
+) else (
+    python "%~dp0app.py"
+)
 pause
+
 
