@@ -1,0 +1,15 @@
+==================================================
+           PANDUAN ABSENSI CLEANER (WINDOWS)
+==================================================
+
+CARA MEMBUKA:
+1. Pastikan folder ini sudah diekstrak (bukan dibuka dari zip).
+2. Klik ganda file "BUKA_APLIKASI.bat" atau "AbsensiCleaner.exe".
+3. Browser akan otomatis terbuka.
+4. Komputer Anda TIDAK PERLU memiliki Python terpasang.
+
+CATATAN WINDOWS DEFENDER:
+Jika muncul peringatan biru "Windows protected your PC":
+  -> Klik "More info"
+  -> Klik tombol "Run anyway"
+==================================================

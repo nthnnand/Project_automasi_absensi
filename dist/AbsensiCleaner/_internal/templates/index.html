@@ -1,0 +1,3584 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Absensi Cleaner v2 — Auto Fill Template</title>
+  <meta name="description" content="Upload data fingerprint → otomatis isi template PNS & PPPK"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:#ffffff;
+      --bg2:#ffffff;
+      --bg3:#ffffff;
+      --bg4:#ffffff;
+
+      --border:#eadfd7;
+      --border2:#f0b5b5;
+
+      --accent:#d71920;
+      --accent2:#e52b31;
+      --accent3:#b81016;
+
+      --green:#10b981;
+      --green2:#34d399;
+      --green3:#ecfdf5;
+
+      --red:#d71920;
+      --red2:#fca5a5;
+      --red3:#fff1f2;
+
+      --amber:#f7941d;
+      --amber2:#f59e0b;
+
+      --purple:#d71920;
+      --purple2:#ef4444;
+
+      --text:#20242b;
+      --text2:#667085;
+      --text3:#98a2b3;
+
+      --radius:18px;
+      --radius2:14px;
+      --radius3:10px;
+
+      --shadow:0 10px 30px rgba(78,39,24,.08);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html {
+      scroll-behavior:smooth;
+    }
+
+    body {
+      font-family:'Inter',sans-serif;
+      background:#ffffff;
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* BACKGROUND PUTIH - TANPA GRADIENT */
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background:none;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    /* ── HEADER ── */
+    .hero {
+      position:relative;
+      z-index:1;
+      text-align:center;
+      padding:34px 24px 18px;
+    }
+
+    .brand-logo {
+      position:absolute;
+      left:34px;
+      top:24px;
+      width:190px;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .hero-badge {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#fff1f1;
+      border:1px solid #f2b0b2;
+      color:var(--accent);
+      padding:7px 18px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.6px;
+      margin-bottom:16px;
+      animation:fadeUp .6s ease;
+    }
+
+    .hero-badge .dot {
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--accent);
+      animation:pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% {
+        opacity:1;
+        transform:scale(1);
+      }
+
+      50% {
+        opacity:.4;
+        transform:scale(.7);
+      }
+    }
+
+    h1 {
+      background:none;
+      -webkit-text-fill-color:initial;
+      background-clip:initial;
+      color:#20242b;
+      font-size:42px;
+      font-weight:900;
+      line-height:1.15;
+      margin-bottom:10px;
+      animation:fadeUp .6s ease .08s both;
+    }
+
+    h1 span {
+      color:var(--accent);
+    }
+
+    .hero-sub {
+      color:var(--text2);
+      font-size:13px;
+      max-width:650px;
+      margin:0 auto;
+      animation:fadeUp .6s ease .16s both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity:0;
+        transform:translateY(14px);
+      }
+
+      to {
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    /* ── STEPS BAR ── */
+    .steps {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      max-width:500px;
+      margin:16px auto 28px;
+      animation:fadeUp .6s ease .24s both;
+      position:relative;
+      z-index:1;
+    }
+
+    .st {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:5px;
+      flex-shrink:0;
+    }
+
+    .st-c {
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:700;
+      border:2px solid #d6d9dd;
+      background:#fff;
+      color:#7b8491;
+      transition:all .3s;
+    }
+
+    .st.active .st-c {
+      border-color:var(--accent);
+      background:var(--accent);
+      color:#fff;
+      box-shadow:none;
+    }
+
+    .st.done .st-c {
+      border-color:var(--accent);
+      background:var(--accent);
+      color:#fff;
+    }
+
+    .st-l {
+      font-size:10px;
+      color:var(--text3);
+      white-space:nowrap;
+      transition:color .3s;
+    }
+
+    .st.active .st-l {
+      color:var(--accent);
+    }
+
+    .st.done .st-l {
+      color:var(--accent);
+    }
+
+    .st-ln {
+      flex:1;
+      height:3px;
+      background:#ddd;
+      margin-top:-18px;
+      transition:background .4s;
+    }
+
+    .st-ln.done {
+      background:var(--accent);
+    }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width:1040px;
+      margin:0 auto;
+      padding:0 20px 50px;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background:#fff;
+      border:1px solid #eadfd7;
+      border-radius:var(--radius);
+      padding:24px;
+      box-shadow:var(--shadow);
+      transition:border-color .3s;
+    }
+
+    .card:hover {
+      border-color:#f0b5b5;
+    }
+
+    .card+.card {
+      margin-top:16px;
+    }
+
+    .card-t {
+      font-size:16px;
+      font-weight:700;
+      margin-bottom:4px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .card-s {
+      font-size:11px;
+      color:var(--text2);
+      margin-bottom:16px;
+    }
+
+    .ico {
+      width:32px;
+      height:32px;
+      border-radius:9px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      flex-shrink:0;
+      background:var(--accent)!important;
+      color:#fff;
+    }
+
+    .ico-b,
+    .ico-g,
+    .ico-r,
+    .ico-p,
+    .ico-a {
+      background:var(--accent)!important;
+      color:#fff;
+    }
+
+    /* ── UPLOAD ZONE ── */
+    .uzone {
+      border:2px dashed #f2a5a8!important;
+      border-radius:var(--radius2);
+      padding:25px 14px;
+      text-align:center;
+      cursor:pointer;
+      transition:all .3s;
+      position:relative;
+      overflow:hidden;
+      background:#fff7f7;
+    }
+
+    .uzone::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:none;
+      opacity:0;
+      transition:opacity .3s;
+    }
+
+    .uzone:hover {
+      border-color:var(--accent)!important;
+      background:#fff2f2;
+    }
+
+    .uzone:hover::before {
+      opacity:1;
+    }
+
+    .uzone.drag {
+      border-color:var(--accent)!important;
+      background:#fff2f2;
+    }
+
+    .uzone.done {
+      border-color:#f2a5a8!important;
+      border-style:solid;
+      background:#fff7f7;
+    }
+
+    .uz-icon {
+      font-size:28px;
+      margin-bottom:8px;
+      display:block;
+    }
+
+    .uz-title {
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+
+    .uz-sub {
+      font-size:12px;
+      color:var(--text2);
+    }
+
+    .uz-btn {
+      display:inline-block;
+      margin-top:12px;
+      padding:8px 22px;
+      border-radius:var(--radius3);
+      background:var(--accent);
+      color:#fff;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      transition:background .2s,transform .1s;
+      border:none;
+    }
+
+    .uz-btn:hover {
+      background:var(--accent3);
+    }
+
+    .uz-btn:active {
+      transform:scale(.97);
+    }
+
+    /* Aksi file setelah berhasil upload */
+    .upload-actions {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .upload-actions .uz-btn {
+      margin-top:0;
+    }
+
+    .uz-change,
+    .uz-delete {
+      display:none;
+      border:1px solid #f2a5a8;
+      background:#fff;
+      color:var(--accent);
+      border-radius:var(--radius3);
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      transition:background .2s, border-color .2s, transform .1s;
+    }
+
+    .uz-delete {
+      color:#b81016;
+    }
+
+    .uz-change:hover,
+    .uz-delete:hover {
+      background:#fff1f1;
+      border-color:var(--accent);
+    }
+
+    .uz-change:active,
+    .uz-delete:active {
+      transform:scale(.97);
+    }
+
+    .uzone.uploaded .uz-btn {
+      display:none;
+    }
+
+    .uzone.uploaded .uz-change,
+    .uzone.uploaded .uz-delete {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .uz-btn.green,
+    .uz-btn.red {
+      background:var(--accent)!important;
+      color:#fff;
+    }
+
+    .uz-btn.green:hover,
+    .uz-btn.red:hover {
+      background:var(--accent3)!important;
+    }
+
+    input[type="file"] {
+      display:none;
+    }
+
+    /* ── FILE INFO ── */
+    .finfo {
+      display:none;
+      align-items:center;
+      gap:10px;
+      border-radius:var(--radius3);
+      padding:10px 14px;
+      margin-top:12px;
+      font-size:13px;
+    }
+
+    .finfo.show {
+      display:flex;
+    }
+
+    .finfo.ok {
+      background:rgba(16,185,129,.08);
+      border:1px solid rgba(16,185,129,.2);
+      color:var(--green2);
+    }
+
+    .finfo .fn {
+      font-weight:600;
+    }
+
+    .finfo .fd {
+      font-size:11px;
+      color:var(--text2);
+      margin-top:2px;
+    }
+
+    /* ── UPLOAD GRID ── */
+    .ugrid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .upload-main-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:16px;
+    }
+
+    /* ── PERIOD ── */
+    .period-card {
+      margin-top:14px;
+      background:#fff;
+      border:1px solid #eadfd7;
+      border-radius:14px;
+      padding:14px;
+      display:grid;
+      grid-template-columns:1.15fr .75fr 1.1fr;
+      align-items:center;
+      gap:20px;
+    }
+
+    .period-title {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .period-title .ico {
+      width:32px;
+      height:32px;
+    }
+
+    .period-options {
+      display:flex;
+      gap:20px;
+      align-items:center;
+      white-space:nowrap;
+    }
+
+    .period-radio {
+      display:flex;
+      gap:7px;
+      align-items:center;
+      font-size:12px;
+      color:var(--text2);
+      cursor:pointer;
+    }
+
+    .period-radio input {
+      accent-color:var(--accent);
+    }
+
+    .period-select {
+      width:100%;
+      height:36px;
+      border:1px solid #dcd5d0;
+      border-radius:8px;
+      padding:0 12px;
+      color:var(--text2);
+      background:#fff;
+      font-size:11px;
+    }
+
+    /* ── PROGRESS ── */
+    .pbar {
+      height:5px;
+      background:var(--border);
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:12px;
+      display:none;
+    }
+
+    .pfill {
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:999px;
+      transition:width .3s;
+    }
+
+    /* ── MATCH TABLE ── */
+    .tbl-wrap {
+      max-height:400px;
+      overflow-y:auto;
+      border:1px solid #eadfd7;
+      border-radius:var(--radius3);
+      margin-top:14px;
+    }
+
+    .tbl-wrap::-webkit-scrollbar {
+      width:5px;
+    }
+
+    .tbl-wrap::-webkit-scrollbar-track {
+      background:#fff;
+    }
+
+    .tbl-wrap::-webkit-scrollbar-thumb {
+      background:#f0b5b5;
+      border-radius:3px;
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+
+    thead th {
+      padding:8px 12px;
+      text-align:left;
+      background:#fff1f1;
+      color:#5d6672;
+      font-weight:600;
+      position:sticky;
+      top:0;
+      z-index:2;
+      border-bottom:1px solid #eadfd7;
+    }
+
+    tbody tr {
+      border-bottom:1px solid #eee4de;
+      transition:background .1s;
+    }
+
+    tbody tr:last-child {
+      border-bottom:none;
+    }
+
+    tbody tr:hover {
+      background:#fffaf8;
+    }
+
+    tbody td {
+      padding:8px 12px;
+      vertical-align:middle;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+    }
+
+    .badge-ok {
+      background:rgba(16,185,129,.15);
+      color:#059669;
+      border:1px solid rgba(16,185,129,.25);
+    }
+
+    .badge-warn {
+      background:rgba(245,158,11,.15);
+      color:var(--amber2);
+      border:1px solid rgba(245,158,11,.25);
+    }
+
+    .badge-fail {
+      background:rgba(239,68,68,.15);
+      color:var(--red);
+      border:1px solid rgba(239,68,68,.25);
+    }
+
+    .score {
+      font-weight:800;
+      font-size:11px;
+    }
+
+    .score-high {
+      color:#059669;
+    }
+
+    .score-mid {
+      color:var(--amber2);
+    }
+
+    .score-low {
+      color:var(--red);
+    }
+
+    /* ── REVIEW ACTION BUTTONS ── */
+    .rev-group {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:2px;
+    }
+
+    .btn-rev {
+      padding:4px 9px;
+      border-radius:4px;
+      font-size:11px;
+      font-weight:600;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--text2);
+      cursor:pointer;
+      transition:all .18s;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      user-select:none;
+    }
+
+    .btn-rev:hover {
+      color:#fff;
+      background:var(--accent);
+    }
+
+    .btn-rev-inc.active {
+      background:rgba(16,185,129,.22);
+      border-color:rgba(16,185,129,.6);
+      color:#059669;
+      font-weight:700;
+      box-shadow:0 0 10px rgba(16,185,129,.15);
+    }
+
+    .btn-rev-ign.active {
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.5);
+      color:var(--red);
+      font-weight:700;
+      box-shadow:0 0 10px rgba(239,68,68,.12);
+    }
+
+    /* ── REVIEW TOOLBAR ── */
+    .rev-toolbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:#fff8f2;
+      border:1px solid #f1dccb;
+      border-radius:var(--radius3);
+      padding:10px 14px;
+      margin-bottom:12px;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .rev-toolbar-info {
+      font-size:12px;
+      color:var(--text2);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .rev-badge-c {
+      background:rgba(245,158,11,.2);
+      color:var(--amber2);
+      border:1px solid rgba(245,158,11,.35);
+      padding:2px 8px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:11px;
+    }
+
+    .rev-toolbar-btns {
+      display:flex;
+      gap:6px;
+    }
+
+    .btn-tool {
+      padding:5px 11px;
+      border-radius:var(--radius3);
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s;
+      border:1px solid transparent;
+    }
+
+    .btn-tool-inc {
+      background:rgba(16,185,129,.15);
+      border-color:rgba(16,185,129,.35);
+      color:#059669;
+    }
+
+    .btn-tool-inc:hover {
+      background:rgba(16,185,129,.28);
+      border-color:var(--green);
+    }
+
+    .btn-tool-ign {
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.35);
+      color:var(--red);
+    }
+
+    .btn-tool-ign:hover {
+      background:rgba(239,68,68,.22);
+      border-color:var(--red);
+    }
+
+    /* ── STATS ── */
+    .sgrid {
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .scard {
+      background:#fff;
+      border:1px solid #eadfd7;
+      border-radius:var(--radius3);
+      padding:14px;
+      text-align:center;
+    }
+
+    .snum {
+      font-size:28px;
+      font-weight:900;
+    }
+
+    .slbl {
+      font-size:11px;
+      color:var(--text2);
+      margin-top:2px;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display:flex;
+      gap:0;
+      margin-bottom:0;
+      border-bottom:1px solid #eadfd7;
+    }
+
+    .tab {
+      padding:10px 20px;
+      font-size:13px;
+      font-weight:600;
+      color:#7d8795;
+      cursor:pointer;
+      border-bottom:2px solid transparent;
+      transition:all .2s;
+    }
+
+    .tab:hover {
+      color:var(--text2);
+    }
+
+    .tab.active {
+      color:var(--accent);
+      border-bottom-color:var(--accent);
+    }
+
+    .tab-pane {
+      display:none;
+    }
+
+    .tab-pane.active {
+      display:block;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-main {
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:9px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .25s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      background:var(--accent)!important;
+      color:#fff;
+      box-shadow:none;
+    }
+
+    .btn-main:hover {
+      background:var(--accent3)!important;
+    }
+
+    .btn-blue {
+      background:var(--accent)!important;
+      color:#fff;
+    }
+
+    .btn-blue:hover {
+      transform:translateY(-1px);
+      background:var(--accent3)!important;
+      box-shadow:0 6px 20px rgba(215,25,32,.18);
+    }
+
+    .btn-green {
+      background:var(--accent)!important;
+      color:#fff;
+    }
+
+    .btn-green:hover {
+      transform:translateY(-1px);
+      background:var(--accent3)!important;
+      box-shadow:0 6px 20px rgba(215,25,32,.18);
+    }
+
+    .btn-main:disabled {
+      opacity:.4;
+      cursor:not-allowed;
+      transform:none!important;
+      box-shadow:none!important;
+    }
+
+    .btn-ghost {
+      background:#fff;
+      border:1px solid #eadfd7;
+      color:var(--text2);
+      width:100%;
+      padding:10px;
+      border-radius:var(--radius3);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      transition:all .2s;
+      margin-top:10px;
+    }
+
+    .btn-ghost:hover {
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:3px solid rgba(255,255,255,.2);
+      border-top-color:#fff;
+      animation:spin .6s linear infinite;
+      display:none;
+    }
+
+    @keyframes spin {
+      to {
+        transform:rotate(360deg);
+      }
+    }
+
+    /* ── SECTION VISIBILITY ── */
+    .sec {
+      display:none;
+      animation:fadeUp .4s ease;
+    }
+
+    .sec.show {
+      display:block;
+    }
+
+    /* ── TOAST ── */
+    .toast-w {
+      position:fixed;
+      top:16px;
+      right:16px;
+      z-index:999;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .toast {
+      padding:10px 16px;
+      border-radius:var(--radius3);
+      font-size:12px;
+      font-weight:500;
+      box-shadow:var(--shadow);
+      animation:slideIn .25s ease;
+      max-width:300px;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity:0;
+        transform:translateX(16px);
+      }
+
+      to {
+        opacity:1;
+        transform:translateX(0);
+      }
+    }
+
+    .toast-ok {
+      background:var(--green3);
+      color:#059669;
+      border-left:3px solid var(--green);
+    }
+
+    .toast-err {
+      background:var(--red3);
+      color:var(--red);
+      border-left:3px solid var(--red);
+    }
+
+    .toast-info {
+      background:#fff1f1;
+      color:var(--accent);
+      border-left:3px solid var(--accent);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align:center;
+      padding:20px;
+      color:#98a2b3;
+      font-size:11px;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:800px) {
+      .brand-logo {
+        position:static;
+        display:block;
+        margin:0 auto 15px;
+        width:165px;
+      }
+
+      .hero {
+        padding-top:20px;
+      }
+
+      .upload-main-grid,
+      .period-card {
+        grid-template-columns:1fr;
+      }
+
+      .period-options {
+        justify-content:flex-start;
+      }
+
+      .sgrid {
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:640px) {
+      .ugrid {
+        grid-template-columns:1fr;
+      }
+
+      .upload-main-grid {
+        grid-template-columns:1fr;
+      }
+
+      .sgrid {
+        grid-template-columns:1fr 1fr;
+      }
+
+      h1 {
+        font-size:34px;
+      }
+
+      .container {
+        padding-left:12px;
+        padding-right:12px;
+      }
+
+      .card {
+        padding:16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="toast-w" id="toastW"></div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+
+  <img
+    class="brand-logo"
+    src="{{ url_for('static', filename='bawaslu-jatim.png') }}"
+    alt="BAWASLU Provinsi Jawa Timur"
+  >
+
+  <div class="hero-badge">
+    <span class="dot"></span>
+    FINGERPRINT ATTENDANCE CLEANER v2
+  </div>
+
+  <h1>
+    Absensi <span>Cleaner</span>
+  </h1>
+
+  <p class="hero-sub">
+    Bersihkan dan cocokkan data absensi secara otomatis menggunakan data fingerprint,
+    absensi WFH, dan template pegawai.
+  </p>
+
+</div>
+
+<!-- ═══ STEPS ═══ -->
+<div class="steps">
+
+  <div class="st active" id="s1">
+    <div class="st-c">1</div>
+    <div class="st-l">Upload</div>
+  </div>
+
+  <div class="st-ln" id="ln12"></div>
+
+  <div class="st" id="s2">
+    <div class="st-c">2</div>
+    <div class="st-l">Preview</div>
+  </div>
+
+  <div class="st-ln" id="ln23"></div>
+
+  <div class="st" id="s3">
+    <div class="st-c">3</div>
+    <div class="st-l">Download</div>
+  </div>
+
+</div>
+
+<div class="container">
+
+  <!-- ═══ SECTION 1: UPLOAD ═══ -->
+  <div class="card sec show" id="secUpload">
+
+    <div class="card-t">
+      <div class="ico ico-b">↑</div>
+      Upload Data Absensi
+    </div>
+
+    <p class="card-s">
+      Pastikan semua file yang dibutuhkan sudah sesuai dengan format yang ditentukan.
+    </p>
+
+    <div class="upload-main-grid">
+
+      <!-- FINGERPRINT -->
+      <div>
+
+        <div
+          class="uzone"
+          id="zFp"
+          onclick="document.getElementById('fFp').click()"
+        >
+
+          <div class="uz-title">
+            Data Absensi Fingerprint
+          </div>
+
+          <div class="uz-sub">
+            Excel hasil export dari mesin fingerprint.
+          </div>
+
+          <div class="uz-sub">
+            Format: .xlsx, .xls
+          </div>
+
+          <div class="upload-actions">
+            <button class="uz-btn" type="button">↑ Pilih File</button>
+            <button class="uz-change" type="button" onclick="changeFile(event, 'fFp')">↻ Ganti File</button>
+            <button class="uz-delete" type="button" onclick="removeFile(event, 'Fp')">Hapus File</button>
+          </div>
+
+          <input
+            type="file"
+            id="fFp"
+            name="fingerprint_file"
+            accept=".xls,.xlsx,.xlsm"
+          />
+
+        </div>
+
+        <div class="finfo" id="iFp">
+          <span>✅</span>
+
+          <div>
+            <div class="fn" id="nFp">-</div>
+            <div class="fd" id="dFp">-</div>
+          </div>
+        </div>
+
+        <div class="pbar" id="pFp">
+          <div class="pfill" id="pfFp"></div>
+        </div>
+
+      </div>
+
+      <!-- WFH -->
+      <div>
+
+        <div
+          class="uzone"
+          id="zWfh"
+          onclick="document.getElementById('fWfh').click()"
+        >
+
+          <div class="uz-title">
+            Data Absensi WFH
+          </div>
+
+          <div class="uz-sub">
+            Excel hasil export dari Google Form.
+          </div>
+
+          <div class="uz-sub">
+            Format: .xlsx, .xls
+          </div>
+
+          <div class="upload-actions">
+            <button class="uz-btn" type="button">↑ Pilih File</button>
+            <button class="uz-change" type="button" onclick="changeFile(event, 'fWfh')">↻ Ganti File</button>
+            <button class="uz-delete" type="button" onclick="removeFile(event, 'Wfh')">Hapus File</button>
+          </div>
+
+          <input
+            type="file"
+            id="fWfh"
+            name="wfh_file"
+            accept=".xls,.xlsx,.xlsm"
+          />
+
+        </div>
+
+        <div class="finfo" id="iWfh">
+          <span>✅</span>
+
+          <div>
+            <div class="fn" id="nWfh">-</div>
+            <div class="fd" id="dWfh">
+              File WFH siap diproses
+            </div>
+          </div>
+        </div>
+
+        <div class="pbar" id="pWfh">
+          <div class="pfill" id="pfWfh"></div>
+        </div>
+
+      </div>
+
+      <!-- PNS -->
+      <div>
+
+        <div
+          class="uzone"
+          id="zPns"
+          onclick="document.getElementById('fPns').click()"
+        >
+
+          <div class="uz-title">
+            Template PNS
+          </div>
+
+          <div class="uz-sub">
+            Template Excel kosong untuk pegawai PNS.
+          </div>
+
+          <div class="uz-sub">
+            Format: .xlsx, .xls
+          </div>
+
+          <div class="upload-actions">
+            <button class="uz-btn" type="button">↑ Pilih File</button>
+            <button class="uz-change" type="button" onclick="changeFile(event, 'fPns')">↻ Ganti File</button>
+            <button class="uz-delete" type="button" onclick="removeFile(event, 'Pns')">Hapus File</button>
+          </div>
+
+          <input
+            type="file"
+            id="fPns"
+            name="pns_template"
+            accept=".xlsx,.xlsm,.xls"
+          />
+
+        </div>
+
+        <div class="finfo" id="iPns">
+          <span>✅</span>
+
+          <div>
+            <div class="fn" id="nPns">-</div>
+            <div class="fd" id="dPns">-</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PPPK -->
+      <div>
+
+        <div
+          class="uzone"
+          id="zPppk"
+          onclick="document.getElementById('fPppk').click()"
+        >
+
+          <div class="uz-title">
+            Template PPPK
+          </div>
+
+          <div class="uz-sub">
+            Template Excel kosong untuk pegawai PPPK.
+          </div>
+
+          <div class="uz-sub">
+            Format: .xlsx, .xls
+          </div>
+
+          <div class="upload-actions">
+            <button class="uz-btn" type="button">↑ Pilih File</button>
+            <button class="uz-change" type="button" onclick="changeFile(event, 'fPppk')">↻ Ganti File</button>
+            <button class="uz-delete" type="button" onclick="removeFile(event, 'Pppk')">Hapus File</button>
+          </div>
+
+          <input
+            type="file"
+            id="fPppk"
+            name="pppk_template"
+            accept=".xlsx,.xlsm,.xls"
+          />
+
+        </div>
+
+        <div class="finfo" id="iPppk">
+          <span>✅</span>
+
+          <div>
+            <div class="fn" id="nPppk">-</div>
+            <div class="fd" id="dPppk">-</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ═══ RENTANG TANGGAL ═══ -->
+    <div class="period-card">
+
+      <div class="period-title">
+
+        <div class="ico">
+          📅
+        </div>
+
+        <div>
+          <div class="uz-title">
+            Pilih Rentang Tanggal yang Diproses
+          </div>
+
+          <div
+            class="card-s"
+            style="margin:0"
+          >
+            Hanya data pada tanggal dalam rentang ini (contoh: 1 s/d 3) yang akan dicocokkan dan dimasukkan ke template.
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:16px;align-items:center;margin-top:10px">
+
+        <div style="flex:1">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">
+            Tanggal Mulai:
+          </label>
+          <select
+            class="period-select"
+            id="startDay"
+            name="start_day"
+            style="width:100%;margin-top:0"
+          >
+            <option value="1" selected>Tanggal 1</option>
+            <option value="2">Tanggal 2</option>
+            <option value="3">Tanggal 3</option>
+            <option value="4">Tanggal 4</option>
+            <option value="5">Tanggal 5</option>
+            <option value="6">Tanggal 6</option>
+            <option value="7">Tanggal 7</option>
+            <option value="8">Tanggal 8</option>
+            <option value="9">Tanggal 9</option>
+            <option value="10">Tanggal 10</option>
+            <option value="11">Tanggal 11</option>
+            <option value="12">Tanggal 12</option>
+            <option value="13">Tanggal 13</option>
+            <option value="14">Tanggal 14</option>
+            <option value="15">Tanggal 15</option>
+            <option value="16">Tanggal 16</option>
+            <option value="17">Tanggal 17</option>
+            <option value="18">Tanggal 18</option>
+            <option value="19">Tanggal 19</option>
+            <option value="20">Tanggal 20</option>
+            <option value="21">Tanggal 21</option>
+            <option value="22">Tanggal 22</option>
+            <option value="23">Tanggal 23</option>
+            <option value="24">Tanggal 24</option>
+            <option value="25">Tanggal 25</option>
+            <option value="26">Tanggal 26</option>
+            <option value="27">Tanggal 27</option>
+            <option value="28">Tanggal 28</option>
+            <option value="29">Tanggal 29</option>
+            <option value="30">Tanggal 30</option>
+            <option value="31">Tanggal 31</option>
+          </select>
+        </div>
+
+        <div style="flex:1">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">
+            Tanggal Selesai:
+          </label>
+          <select
+            class="period-select"
+            id="endDay"
+            name="end_day"
+            style="width:100%;margin-top:0"
+          >
+            <option value="1">Tanggal 1</option>
+            <option value="2">Tanggal 2</option>
+            <option value="3">Tanggal 3</option>
+            <option value="4">Tanggal 4</option>
+            <option value="5">Tanggal 5</option>
+            <option value="6">Tanggal 6</option>
+            <option value="7">Tanggal 7</option>
+            <option value="8">Tanggal 8</option>
+            <option value="9">Tanggal 9</option>
+            <option value="10">Tanggal 10</option>
+            <option value="11">Tanggal 11</option>
+            <option value="12">Tanggal 12</option>
+            <option value="13">Tanggal 13</option>
+            <option value="14">Tanggal 14</option>
+            <option value="15">Tanggal 15</option>
+            <option value="16">Tanggal 16</option>
+            <option value="17">Tanggal 17</option>
+            <option value="18">Tanggal 18</option>
+            <option value="19">Tanggal 19</option>
+            <option value="20">Tanggal 20</option>
+            <option value="21">Tanggal 21</option>
+            <option value="22">Tanggal 22</option>
+            <option value="23">Tanggal 23</option>
+            <option value="24">Tanggal 24</option>
+            <option value="25">Tanggal 25</option>
+            <option value="26">Tanggal 26</option>
+            <option value="27">Tanggal 27</option>
+            <option value="28">Tanggal 28</option>
+            <option value="29">Tanggal 29</option>
+            <option value="30">Tanggal 30</option>
+            <option value="31" selected>Tanggal 31</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <button
+      class="btn-main btn-blue"
+      id="btnPreview"
+      style="margin-top:16px"
+      onclick="doPreview()"
+      disabled
+    >
+
+      <span>▶ Proses Data</span>
+
+      <div
+        class="spinner"
+        id="spPrev"
+      ></div>
+
+    </button>
+
+  </div>
+
+
+  <!-- ═══ SECTION 2: PREVIEW ═══ -->
+  <div class="card sec" id="secPreview">
+
+    <div class="card-t">
+      Hasil Pencocokan Nama
+    </div>
+
+    <p class="card-s">
+      Sistem menampilkan hasil pencocokan nama template terhadap data WFO dan WFH.
+      Hasil dengan <strong>threshold ≥ 80% otomatis ditandai Masukkan</strong>. Untuk data dengan <strong>threshold &lt; 80%</strong>, silakan tentukan keputusan secara manual per data atau gunakan tombol aksi di bawah.
+    </p>
+
+    <div class="sgrid" id="statsGrid">
+
+      <div class="scard">
+        <div
+          class="snum"
+          style="color:var(--accent2)"
+          id="xAll"
+        >
+          0
+        </div>
+        <div class="slbl">
+          Pegawai Fingerprint
+        </div>
+      </div>
+
+      <div class="scard">
+        <div
+          class="snum"
+          style="color:var(--green)"
+          id="xPns"
+        >
+          0
+        </div>
+        <div class="slbl">
+          Cocok PNS
+        </div>
+      </div>
+
+      <div class="scard">
+        <div
+          class="snum"
+          style="color:var(--green)"
+          id="xPppk"
+        >
+          0
+        </div>
+        <div class="slbl">
+          Cocok PPPK
+        </div>
+      </div>
+
+      <div class="scard">
+        <div
+          class="snum"
+          style="color:var(--amber2)"
+          id="xRev"
+        >
+          0
+        </div>
+        <div class="slbl">
+          Perlu Review
+        </div>
+      </div>
+
+      <div class="scard">
+        <div
+          class="snum"
+          style="color:var(--text3)"
+          id="xUnm"
+        >
+          0
+        </div>
+        <div class="slbl">
+          Tidak Cocok
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ AKSI CEPAT SECTION 2 ═══ -->
+    <div
+      class="rev-toolbar"
+      id="barSec2"
+      style="margin-bottom:16px;background:#fff8f2;border:1px solid #f1dccb"
+    >
+      <div class="rev-toolbar-info">
+        <span>⚡</span>
+        <span>
+          Aksi Cepat Section 2:
+          <span style="font-size:11px;color:var(--text2);font-weight:normal">(Data ≥80% otomatis dimasukkan)</span>
+        </span>
+      </div>
+      <div class="rev-toolbar-btns">
+        <button
+          type="button"
+          class="btn-tool btn-tool-inc"
+          id="btnIncludeAll"
+          onclick="bulkDecisionAll('include_all')"
+          title="Memilih/memasukkan seluruh data yang tampil di Section 2, termasuk data dengan threshold <80%"
+        >
+          ✅ Masukkan Semua
+        </button>
+        <button
+          type="button"
+          class="btn-tool btn-tool-ign"
+          id="btnIgnoreAll"
+          onclick="bulkDecisionAll('ignore_all')"
+          title="Mengabaikan seluruh data yang tampil di Section 2 sehingga tidak ada yang dimasukkan"
+        >
+          ❌ Abaikan Semua
+        </button>
+      </div>
+    </div>
+
+
+    <!-- TABS: WFO & WFH -->
+    <div class="tabs">
+
+      <div
+        class="tab active"
+        data-tab="tabWfo"
+        onclick="switchTab(this)"
+      >
+        🏢 WFO (Fingerprint)
+      </div>
+
+      <div
+        class="tab"
+        data-tab="tabWfh"
+        onclick="switchTab(this)"
+      >
+        🏠 WFH
+      </div>
+
+      <div
+        class="tab"
+        data-tab="tabUnm"
+        onclick="switchTab(this)"
+      >
+        ⚪ Tidak Cocok
+      </div>
+
+    </div>
+
+
+    <!-- ═══ WFO TAB ═══ -->
+    <div
+      class="tab-pane active"
+      id="tabWfo"
+    >
+
+      <div
+        class="rev-toolbar"
+        id="barWfo"
+        style="display:none"
+      >
+
+        <div class="rev-toolbar-info">
+
+          <span>🏢</span>
+
+          <span>
+            Ada
+            <strong
+              id="countWfo"
+              class="rev-badge-c"
+            >
+              0
+            </strong>
+            data WFO menunggu keputusan Anda:
+          </span>
+
+        </div>
+
+        <div class="rev-toolbar-btns">
+
+          <button
+            type="button"
+            class="btn-tool btn-tool-inc"
+            onclick="bulkDecision('wfo', 'include_all')"
+            title="Pilih/masukkan seluruh data WFO yang tampil (termasuk <80%)"
+          >
+            ✅ Masukkan Semua WFO
+          </button>
+
+          <button
+            type="button"
+            class="btn-tool btn-tool-ign"
+            onclick="bulkDecision('wfo', 'ignore_all')"
+            title="Abaikan semua data WFO"
+          >
+            ❌ Abaikan Semua WFO
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- PNS WFO -->
+      <div id="wrapWfoPns" style="margin-bottom:28px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🟢</span> Template PNS — Data WFO
+            <span id="badgeCountPnsWfo" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(59,130,246,.12);color:var(--accent2)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di Fingerprint
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfoPns"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- PPPK WFO -->
+      <div id="wrapWfoPppk" style="margin-bottom:12px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🔴</span> Template PPPK — Data WFO
+            <span id="badgeCountPppkWfo" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(59,130,246,.12);color:var(--accent2)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di Fingerprint
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfoPppk"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ═══ WFH TAB ═══ -->
+    <div
+      class="tab-pane"
+      id="tabWfh"
+    >
+
+      <div
+        class="rev-toolbar"
+        id="barWfh"
+        style="display:none"
+      >
+
+        <div class="rev-toolbar-info">
+
+          <span>🏠</span>
+
+          <span>
+            Ada
+            <strong
+              id="countWfh"
+              class="rev-badge-c"
+            >
+              0
+            </strong>
+            data WFH menunggu keputusan Anda:
+          </span>
+
+        </div>
+
+        <div class="rev-toolbar-btns">
+
+          <button
+            type="button"
+            class="btn-tool btn-tool-inc"
+            onclick="bulkDecision('wfh', 'include_all')"
+            title="Pilih/masukkan seluruh data WFH yang tampil (termasuk <80%)"
+          >
+            ✅ Masukkan Semua WFH
+          </button>
+
+          <button
+            type="button"
+            class="btn-tool btn-tool-ign"
+            onclick="bulkDecision('wfh', 'ignore_all')"
+            title="Abaikan semua data WFH"
+          >
+            ❌ Abaikan Semua WFH
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- PNS WFH -->
+      <div id="wrapWfhPns" style="margin-bottom:28px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🟢</span> Template PNS — Data WFH
+            <span id="badgeCountPnsWfh" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,.12);color:var(--green)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di WFH
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfhPns"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- PPPK WFH -->
+      <div id="wrapWfhPppk" style="margin-bottom:12px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+            <span>🔴</span> Template PPPK — Data WFH
+            <span id="badgeCountPppkWfh" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,.12);color:var(--green)">0 data</span>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th style="width:36px">
+                  #
+                </th>
+
+                <th>
+                  Nama di Template
+                </th>
+
+                <th>
+                  Nama di WFH
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Skor & Rekomendasi
+                </th>
+
+                <th style="width:120px;text-align:center">
+                  Tanggal Absen
+                </th>
+
+                <th style="width:130px;text-align:center">
+                  Status Konflik
+                </th>
+
+                <th style="width:200px;text-align:center">
+                  Keputusan Anda
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="tbWfhPppk"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- UNMATCHED TAB -->
+    <div
+      class="tab-pane"
+      id="tabUnm"
+    >
+
+      <p
+        style="font-size:12px;color:var(--text2);padding:10px 0"
+      >
+        Pegawai fingerprint yang tidak ditemukan di template PNS maupun PPPK:
+      </p>
+
+      <div class="tbl-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th style="width:70px">
+                FP ID
+              </th>
+
+              <th>
+                Nama di Fingerprint
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="tbUnm"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ═══ SECTION 3: DOWNLOAD ═══ -->
+  <div
+    class="card sec"
+    id="secDownload"
+  >
+
+    <div class="card-t">
+      Download Hasil
+    </div>
+
+    <p class="card-s">
+      Template akan diisi dengan jam masuk & keluar dari data fingerprint.
+      File asli tidak berubah.
+    </p>
+
+
+    <div
+      id="dlRecap"
+      style="
+        display:none;
+        background:#fff1f1;
+        border:1px solid #f2b0b2;
+        border-radius:var(--radius3);
+        padding:12px 14px;
+        margin-bottom:14px;
+        font-size:12px;
+        color:var(--accent)
+      "
+    >
+    </div>
+
+
+    <div
+      style="
+        background:#fff;
+        border:1px solid var(--border);
+        border-radius:var(--radius3);
+        padding:14px;
+        margin-bottom:16px;
+        font-size:12px;
+        color:var(--text2)
+      "
+    >
+
+      📋
+      <strong style="color:var(--text)">
+        Yang diisi program:
+      </strong>
+
+      kolom
+      <strong style="color:var(--green)">
+        M
+      </strong>
+      (Masuk),
+      <strong style="color:var(--red)">
+        P
+      </strong>
+      (Pulang), dan
+      <strong style="color:var(--accent2)">
+        K
+      </strong>
+      (Keterangan: H untuk WFO, WFH untuk WFH) di sheet "Input Data Absen"
+
+      <br/>
+
+      📋
+      <strong style="color:var(--text)">
+        Yang TIDAK diubah:
+      </strong>
+
+      formula, format, dan sheet lainnya
+
+    </div>
+
+
+    <button
+      class="btn-main btn-green"
+      id="btnDownload"
+      onclick="doDownload()"
+    >
+
+      <span>
+        ⬇️ Download ZIP (PNS + PPPK)
+      </span>
+
+      <div
+        class="spinner"
+        id="spDl"
+      ></div>
+
+    </button>
+
+
+    <button
+      class="btn-ghost"
+      onclick="resetAll()"
+    >
+      🔄 Proses File Lain
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="footer">
+  Absensi Cleaner v2 · File asli tidak diubah · Jam Masuk & Keluar = waktu terawal
+</div>
+
+
+<script>
+
+/* ── State ── */
+
+let fpOk=false;
+let pnsOk=false;
+let pppkOk=false;
+
+let wfhOk=false;
+let selectedWfhFile=null;
+
+let previewData=null;
+
+let userDecisions={
+  PNS:{},
+  PPPK:{}
+};
+
+let saveTimer=null;
+
+
+/* ── Toast ── */
+
+function toast(m,t='info'){
+
+  const w=document.getElementById('toastW');
+
+  const d=document.createElement('div');
+
+  d.className='toast toast-'+(
+    t==='success'
+      ? 'ok'
+      : t==='error'
+        ? 'err'
+        : 'info'
+  );
+
+  d.textContent=m;
+
+  w.appendChild(d);
+
+  setTimeout(
+    ()=>d.remove(),
+    4000
+  );
+}
+
+
+/* ── Steps ── */
+
+function goStep(n){
+
+  for(let i=1;i<=3;i++){
+
+    const s=document.getElementById('s'+i);
+
+    s.classList.toggle(
+      'active',
+      i===n
+    );
+
+    s.classList.toggle(
+      'done',
+      i<n
+    );
+
+  }
+
+  for(let i=1;i<=2;i++){
+
+    document
+      .getElementById('ln'+i+(i+1))
+      .classList.toggle(
+        'done',
+        i<n
+      );
+
+  }
+
+}
+
+
+/* ── Show sections ── */
+
+function showSec(...ids){
+
+  document
+    .querySelectorAll('.sec')
+    .forEach(
+      s=>s.classList.remove('show')
+    );
+
+  ids.forEach(
+    id=>document
+      .getElementById(id)
+      .classList.add('show')
+  );
+
+}
+
+
+/* ── Tabs ── */
+
+function switchTab(el){
+
+  document
+    .querySelectorAll('.tab')
+    .forEach(
+      t=>t.classList.remove('active')
+    );
+
+  document
+    .querySelectorAll('.tab-pane')
+    .forEach(
+      p=>p.classList.remove('active')
+    );
+
+  el.classList.add('active');
+
+  document
+    .getElementById(el.dataset.tab)
+    .classList.add('active');
+
+}
+
+
+/* ── Check ready ── */
+
+function checkReady(){
+
+  /*
+    Minimal 1 sumber data absen (Fingerprint atau WFH)
+    + minimal 1 template (PNS atau PPPK).
+  */
+
+  document
+    .getElementById('btnPreview')
+    .disabled=!(
+      (fpOk || wfhOk) &&
+      (pnsOk || pppkOk)
+    );
+
+}
+
+
+/* ── Validate Excel ── */
+
+function validateExcel(file){
+
+  if(!file){
+    return false;
+  }
+
+  const ext=
+    file.name
+      .split('.')
+      .pop()
+      .toLowerCase();
+
+  if(
+    ![
+      'xls',
+      'xlsx',
+      'xlsm'
+    ].includes(ext)
+  ){
+
+    toast(
+      'File harus berformat .xls, .xlsx, atau .xlsm',
+      'error'
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+
+/* ── File action helpers ── */
+
+function setUploadedUI(key, uploaded){
+  const zone=document.getElementById('z'+key);
+  if(zone){
+    zone.classList.toggle('uploaded', uploaded);
+  }
+}
+
+function changeFile(e, inputId){
+  e.stopPropagation();
+  const input=document.getElementById(inputId);
+  if(input){
+    input.click();
+  }
+}
+
+function removeFile(e, key){
+  e.stopPropagation();
+
+  const config={
+    Fp:{input:'fFp', info:'iFp', name:'nFp', detail:'dFp', zone:'zFp'},
+    Wfh:{input:'fWfh', info:'iWfh', name:'nWfh', detail:'dWfh', zone:'zWfh'},
+    Pns:{input:'fPns', info:'iPns', name:'nPns', detail:'dPns', zone:'zPns'},
+    Pppk:{input:'fPppk', info:'iPppk', name:'nPppk', detail:'dPppk', zone:'zPppk'}
+  };
+
+  const c=config[key];
+  if(!c) return;
+
+  document.getElementById(c.input).value='';
+  document.getElementById(c.info).classList.remove('show','ok');
+  document.getElementById(c.name).textContent='-';
+  document.getElementById(c.detail).textContent='-';
+  document.getElementById(c.zone).classList.remove('done','uploaded');
+
+  if(key==='Fp') fpOk=false;
+  if(key==='Wfh'){
+    wfhOk=false;
+    selectedWfhFile=null;
+    const pWfh=document.getElementById('pWfh');
+    if(pWfh) pWfh.style.display='none';
+  }
+  if(key==='Pns') pnsOk=false;
+  if(key==='Pppk') pppkOk=false;
+
+  checkReady();
+  toast('File berhasil dihapus.', 'info');
+}
+
+
+/* ── WFH ── */
+
+function handleWfh(file){
+
+  if(!validateExcel(file)){
+    return;
+  }
+
+  selectedWfhFile=file;
+
+  const bar=
+    document.getElementById('pWfh');
+
+  const fill=
+    document.getElementById('pfWfh');
+
+  bar.style.display='block';
+  fill.style.width='0';
+
+  let p=0;
+
+  const t=setInterval(
+    ()=>{
+      p=Math.min(
+        p+Math.random()*18,
+        85
+      );
+
+      fill.style.width=p+'%';
+    },
+    100
+  );
+
+  const fd=new FormData();
+
+  fd.append(
+    'file',
+    file
+  );
+
+  fetch(
+    '/upload-wfh',
+    {
+      method:'POST',
+      body:fd
+    }
+  )
+  .then(
+    r=>r.json()
+  )
+  .then(
+    d=>{
+
+      clearInterval(t);
+
+      fill.style.width='100%';
+
+      setTimeout(
+        ()=>bar.style.display='none',
+        600
+      );
+
+      if(d.error){
+
+        toast(
+          d.error,
+          'error'
+        );
+
+        return;
+      }
+
+      document
+        .getElementById('nWfh')
+        .textContent=d.filename;
+
+      document
+        .getElementById('dWfh')
+        .textContent=
+          `${d.employees} pegawai · ${
+            d.clean_records
+          } record bersih`;
+
+      document
+        .getElementById('iWfh')
+        .classList.add('show','ok');
+
+      document
+        .getElementById('zWfh')
+        .classList.add('done');
+
+      setUploadedUI('Wfh', true);
+
+      wfhOk=true;
+
+      checkReady();
+
+      toast(
+        'File absensi WFH berhasil diupload!',
+        'success'
+      );
+
+    }
+  )
+  .catch(
+    e=>{
+
+      clearInterval(t);
+
+      bar.style.display='none';
+
+      toast(
+        'Error: '+e.message,
+        'error'
+      );
+
+    }
+  );
+
+}
+
+
+/* ── Period ── */
+
+function togglePeriod(){
+
+  const type=
+    document
+      .querySelector(
+        'input[name="period_type"]:checked'
+      )
+      .value;
+
+  document
+    .getElementById('periodWeek')
+    .style.display=
+      type==='mingguan'
+        ? 'block'
+        : 'none';
+
+  document
+    .getElementById('periodMonth')
+    .style.display=
+      type==='bulanan'
+        ? 'block'
+        : 'none';
+
+}
+
+
+/* ── Drag/drop helpers ── */
+
+function setupDrop(zoneId,handler){
+
+  const z=
+    document.getElementById(zoneId);
+
+  z.addEventListener(
+    'dragover',
+    e=>{
+      e.preventDefault();
+      z.classList.add('drag');
+    }
+  );
+
+  z.addEventListener(
+    'dragleave',
+    ()=>{
+      z.classList.remove('drag');
+    }
+  );
+
+  z.addEventListener(
+    'drop',
+    e=>{
+      e.preventDefault();
+
+      z.classList.remove('drag');
+
+      if(e.dataTransfer.files[0]){
+        handler(
+          e.dataTransfer.files[0]
+        );
+      }
+    }
+  );
+
+}
+
+
+/* ── Upload fingerprint ── */
+
+function uploadFp(file){
+
+  if(!validateExcel(file)){
+    return;
+  }
+
+  const bar=
+    document.getElementById('pFp');
+
+  const fill=
+    document.getElementById('pfFp');
+
+  bar.style.display='block';
+  fill.style.width='0';
+
+  let p=0;
+
+  const t=setInterval(
+    ()=>{
+      p=Math.min(
+        p+Math.random()*18,
+        85
+      );
+
+      fill.style.width=p+'%';
+    },
+    100
+  );
+
+  const fd=new FormData();
+
+  fd.append(
+    'file',
+    file
+  );
+
+  fetch(
+    '/upload-fingerprint',
+    {
+      method:'POST',
+      body:fd
+    }
+  )
+  .then(
+    r=>r.json()
+  )
+  .then(
+    d=>{
+
+      clearInterval(t);
+
+      fill.style.width='100%';
+
+      setTimeout(
+        ()=>bar.style.display='none',
+        600
+      );
+
+      if(d.error){
+
+        toast(
+          d.error,
+          'error'
+        );
+
+        return;
+      }
+
+      document
+        .getElementById('nFp')
+        .textContent=d.filename;
+
+      document
+        .getElementById('dFp')
+        .textContent=
+          `${d.employees} pegawai · ${
+            d.raw_rows.toLocaleString()
+          } baris mentah · ${
+            d.clean_records
+          } record bersih`;
+
+      document
+        .getElementById('iFp')
+        .classList.add('show','ok');
+
+      document
+        .getElementById('zFp')
+        .classList.add('done');
+
+      setUploadedUI('Fp', true);
+
+      fpOk=true;
+
+      checkReady();
+
+      toast(
+        'File fingerprint berhasil diupload!',
+        'success'
+      );
+
+    }
+  )
+  .catch(
+    e=>{
+
+      clearInterval(t);
+
+      bar.style.display='none';
+
+      toast(
+        'Error: '+e.message,
+        'error'
+      );
+
+    }
+  );
+
+}
+
+
+/* ── Upload template ── */
+
+function uploadTpl(file,type){
+
+  if(!validateExcel(file)){
+    return;
+  }
+
+  const fd=new FormData();
+
+  fd.append(
+    'file',
+    file
+  );
+
+  fd.append(
+    'type',
+    type
+  );
+
+  const idPfx=
+    type==='PNS'
+      ? 'Pns'
+      : 'Pppk';
+
+  fetch(
+    '/upload-template',
+    {
+      method:'POST',
+      body:fd
+    }
+  )
+  .then(
+    r=>r.json()
+  )
+  .then(
+    d=>{
+
+      if(d.error){
+
+        toast(
+          d.error,
+          'error'
+        );
+
+        return;
+      }
+
+      document
+        .getElementById(
+          'n'+idPfx
+        )
+        .textContent=d.filename;
+
+      document
+        .getElementById(
+          'd'+idPfx
+        )
+        .textContent=
+          `${d.employees} pegawai ditemukan`;
+
+      document
+        .getElementById(
+          'i'+idPfx
+        )
+        .classList.add(
+          'show',
+          'ok'
+        );
+
+      document
+        .getElementById(
+          'z'+idPfx
+        )
+        .classList.add(
+          'done'
+        );
+
+      setUploadedUI(idPfx, true);
+
+      if(type==='PNS'){
+        pnsOk=true;
+      }
+      else{
+        pppkOk=true;
+      }
+
+      checkReady();
+
+      toast(
+        `Template ${type} berhasil diupload!`,
+        'success'
+      );
+
+    }
+  )
+  .catch(
+    e=>{
+      toast(
+        'Error: '+e.message,
+        'error'
+      );
+    }
+  );
+
+}
+
+
+/* ── Wire up file inputs ── */
+
+document
+  .getElementById('fFp')
+  .addEventListener(
+    'change',
+    e=>{
+      if(e.target.files[0]){
+        uploadFp(
+          e.target.files[0]
+        );
+      }
+    }
+  );
+
+
+document
+  .getElementById('fPns')
+  .addEventListener(
+    'change',
+    e=>{
+      if(e.target.files[0]){
+        uploadTpl(
+          e.target.files[0],
+          'PNS'
+        );
+      }
+    }
+  );
+
+
+document
+  .getElementById('fPppk')
+  .addEventListener(
+    'change',
+    e=>{
+      if(e.target.files[0]){
+        uploadTpl(
+          e.target.files[0],
+          'PPPK'
+        );
+      }
+    }
+  );
+
+
+document
+  .getElementById('fWfh')
+  .addEventListener(
+    'change',
+    e=>{
+      if(e.target.files[0]){
+        handleWfh(
+          e.target.files[0]
+        );
+      }
+    }
+  );
+
+
+/* ── Drag & Drop ── */
+
+setupDrop(
+  'zFp',
+  f=>uploadFp(f)
+);
+
+setupDrop(
+  'zPns',
+  f=>uploadTpl(f,'PNS')
+);
+
+setupDrop(
+  'zPppk',
+  f=>uploadTpl(f,'PPPK')
+);
+
+setupDrop(
+  'zWfh',
+  f=>handleWfh(f)
+);
+
+
+/* ── Preview ── */
+
+function doPreview(){
+  const startDayEl = document.getElementById('startDay');
+  const endDayEl = document.getElementById('endDay');
+  const startDay = startDayEl ? parseInt(startDayEl.value, 10) : 1;
+  const endDay = endDayEl ? parseInt(endDayEl.value, 10) : 31;
+
+  if(startDay > endDay){
+    toast('Tanggal Mulai tidak boleh lebih besar dari Tanggal Selesai!', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnPreview');
+  const sp = document.getElementById('spPrev');
+
+  btn.disabled = true;
+  sp.style.display = 'block';
+
+  fetch('/preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      start_day: startDay,
+      end_day: endDay
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+
+    if(d.error){
+      toast(d.error, 'error');
+      checkReady();
+      return;
+    }
+
+    renderPreview(d);
+    goStep(2);
+    showSec('secUpload', 'secPreview', 'secDownload');
+    document.getElementById('secPreview').scrollIntoView({ behavior: 'smooth' });
+    toast(`Preview siap untuk rentang Tgl ${startDay} s/d ${endDay}!`, 'success');
+  })
+  .catch(e => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+    toast('Error: ' + e.message, 'error');
+    checkReady();
+  });
+}
+
+
+/* ── Render Preview ── */
+
+function renderPreview(d){
+  previewData = d;
+
+  if(d.saved_decisions && Object.keys(d.saved_decisions).length > 0){
+    userDecisions = {
+      PNS: d.saved_decisions.PNS || d.saved_decisions.pns || {},
+      PPPK: d.saved_decisions.PPPK || d.saved_decisions.pppk || {}
+    };
+  } else {
+    userDecisions = { PNS: {}, PPPK: {} };
+  }
+
+  // 1. Auto Masuk berdasarkan Threshold:
+  // - Jika hasil matching memiliki threshold >= 80%, otomatis tandai sebagai Masukkan (true).
+  // - Jika threshold < 80%, jangan otomatis dimasukkan dan tetap minta keputusan user di Review (null).
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!d[key]) return;
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
+
+    ['wfo', 'wfh'].forEach(src => {
+      const list = d[key][src] || (src === 'wfo' ? d[key].matches_fp : d[key].matches_wfh) || [];
+      list.forEach(m => {
+        if(!m.fp_id) return;
+        if(!userDecisions[tplType][m.tpl_row]){
+          userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+        }
+        // Hanya atur jika belum pernah ditentukan keputusannya (masih null/undefined)
+        if(userDecisions[tplType][m.tpl_row][src] === null || userDecisions[tplType][m.tpl_row][src] === undefined){
+          if(m.score >= 80){
+            userDecisions[tplType][m.tpl_row][src] = true;
+            if(m.tpl_name){
+              userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+            }
+          } else {
+            userDecisions[tplType][m.tpl_row][src] = null;
+          }
+        }
+      });
+    });
+  });
+
+  saveDecisionsToServer();
+
+  function buildRow(m, tplType, src){
+    const SRC = src.toUpperCase();
+    const rowDec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row]
+      ? userDecisions[tplType][m.tpl_row]
+      : null;
+    const choice = rowDec ? rowDec[src] : null;
+    const isChosen = choice === true;
+    const isIgnored = choice === false;
+
+    // 1. Skor & Rekomendasi
+    let scoreHtml = '';
+    if(!m.fp_id || m.score === 0){
+      scoreHtml = '<span style="color:var(--text3);font-size:11px">—</span>';
+    } else {
+      let scls = 'score-low';
+      let badgeColor = 'var(--red)';
+      if(m.score >= 80){
+        scls = 'score-high';
+        badgeColor = '#059669';
+      } else if(m.score >= 40){
+        scls = 'score-mid';
+        badgeColor = 'var(--amber2)';
+      }
+      scoreHtml = `
+        <div class="score ${scls}" style="font-size:12px">${m.score}%</div>
+        <div style="font-size:10px;font-weight:700;color:${badgeColor}">${m.rec_label || ''}</div>
+      `;
+    }
+
+    // 2. Tanggal Absen
+    let daysHtml = '';
+    if(m.days && m.days.length > 0){
+      const dayListStr = m.days.join(', ');
+      daysHtml = `
+        <span class="badge" style="background:rgba(59,130,246,.1);color:var(--accent2);font-size:11px" title="Tgl: ${dayListStr}">
+          📅 ${m.days.length} hari (${m.days.slice(0, 4).join(', ')}${m.days.length > 4 ? '...' : ''})
+        </span>
+      `;
+    } else {
+      daysHtml = '<span style="color:var(--text3);font-size:11px">0 hari</span>';
+    }
+
+    // 3. Status Konflik
+    let conflictHtml = '';
+    if(m.has_conflict){
+      conflictHtml = `
+        <span class="badge badge-fail" style="font-size:11px;font-weight:700" title="Pegawai ini juga memiliki data ${src === 'wfo' ? 'WFH' : 'WFO'} pada tgl: ${m.conflict_days.join(', ')}">
+          ⚠️ Konflik Tgl ${m.conflict_days.join(', ')}
+        </span>
+      `;
+    } else if(src === 'wfo' && m.has_wfh){
+      conflictHtml = '<span style="color:var(--text2);font-size:11px">Ada WFH (Beda tgl)</span>';
+    } else if(src === 'wfh' && m.has_wfo){
+      conflictHtml = '<span style="color:var(--text2);font-size:11px">Ada WFO (Beda tgl)</span>';
+    } else {
+      conflictHtml = '<span style="color:var(--green);font-size:11px">✅ Tidak Ada</span>';
+    }
+
+    // 4. Keputusan Anda
+    let actionHtml = '';
+    if(!m.fp_id){
+      actionHtml = '<span style="color:var(--text3);font-size:11px">— Tidak ada data —</span>';
+    } else {
+      const encName = encodeURIComponent(m.tpl_name);
+      const btnLabel = 'Masukkan';
+      const statusLabel = isChosen
+        ? '<span style="color:#059669;font-weight:700">✅ Masukkan</span>'
+        : isIgnored
+          ? '<span style="color:var(--red);font-weight:700">❌ Diabaikan</span>'
+          : '<span style="color:var(--amber2);font-weight:600">⏳ Belum Dipilih</span>';
+
+      actionHtml = `
+        <div class="rev-group" id="group_${SRC}_${tplType}_${m.tpl_row}">
+          <button
+            type="button"
+            class="btn-rev btn-rev-inc ${isChosen ? 'active' : ''}"
+            onclick="setDecision('${tplType}', '${src}', ${m.tpl_row}, true, '${encName}')"
+            title="Tandai data ${SRC} untuk dimasukkan ke template"
+          >
+            ✅ ${btnLabel}
+          </button>
+          <button
+            type="button"
+            class="btn-rev btn-rev-ign ${isIgnored ? 'active' : ''}"
+            onclick="setDecision('${tplType}', '${src}', ${m.tpl_row}, false, '${encName}')"
+            title="Abaikan data ${SRC} pegawai ini"
+          >
+            ❌ Abaikan
+          </button>
+        </div>
+        <div id="status_${SRC}_${tplType}_${m.tpl_row}" style="margin-top:3px;font-size:10px">
+          ${statusLabel}
+        </div>
+      `;
+    }
+
+    return `
+      <tr id="row_${SRC}_${tplType}_${m.tpl_row}">
+        <td style="color:var(--text3);text-align:center">${m.tpl_no}</td>
+        <td style="font-weight:600">${m.tpl_name}</td>
+        <td>
+          ${m.fp_id ? `<div>${m.matched_name || m.fp_id}</div><div style="font-size:10px;color:var(--text3)">ID: ${m.fp_id}</div>` : '<span style="color:var(--text3)">— tidak ditemukan</span>'}
+        </td>
+        <td style="text-align:center">${scoreHtml}</td>
+        <td style="text-align:center">${daysHtml}</td>
+        <td style="text-align:center">${conflictHtml}</td>
+        <td style="text-align:center">${actionHtml}</td>
+      </tr>
+    `;
+  }
+
+  // 1. PNS WFO
+  const tbWfoPns = document.getElementById('tbWfoPns');
+  const badgeCountPnsWfo = document.getElementById('badgeCountPnsWfo');
+  if(tbWfoPns){
+    tbWfoPns.innerHTML = '';
+    const wfoList = (d.pns && (d.pns.wfo || d.pns.matches_fp)) || [];
+    if(d.pns && wfoList.length > 0){
+      let matched = 0;
+      wfoList.forEach(m => {
+        if(m.fp_id && m.score > 0) matched++;
+        tbWfoPns.innerHTML += buildRow(m, 'PNS', 'wfo');
+      });
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = `${matched} cocok / ${wfoList.length} pegawai`;
+    } else if(d.pns && !d.has_fp){
+      tbWfoPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File Fingerprint tidak diupload</td></tr>';
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = '0 data';
+    } else if(!d.pns){
+      tbWfoPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PNS tidak diupload</td></tr>';
+      if(badgeCountPnsWfo) badgeCountPnsWfo.textContent = '0 data';
+    }
+  }
+
+  // 2. PPPK WFO
+  const tbWfoPppk = document.getElementById('tbWfoPppk');
+  const badgeCountPppkWfo = document.getElementById('badgeCountPppkWfo');
+  if(tbWfoPppk){
+    tbWfoPppk.innerHTML = '';
+    const wfoList = (d.pppk && (d.pppk.wfo || d.pppk.matches_fp)) || [];
+    if(d.pppk && wfoList.length > 0){
+      let matched = 0;
+      wfoList.forEach(m => {
+        if(m.fp_id && m.score > 0) matched++;
+        tbWfoPppk.innerHTML += buildRow(m, 'PPPK', 'wfo');
+      });
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = `${matched} cocok / ${wfoList.length} pegawai`;
+    } else if(d.pppk && !d.has_fp){
+      tbWfoPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File Fingerprint tidak diupload</td></tr>';
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = '0 data';
+    } else if(!d.pppk){
+      tbWfoPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PPPK tidak diupload</td></tr>';
+      if(badgeCountPppkWfo) badgeCountPppkWfo.textContent = '0 data';
+    }
+  }
+
+  // 3. PNS WFH
+  const tbWfhPns = document.getElementById('tbWfhPns');
+  const badgeCountPnsWfh = document.getElementById('badgeCountPnsWfh');
+  if(tbWfhPns){
+    tbWfhPns.innerHTML = '';
+    const wfhList = (d.pns && (d.pns.wfh || d.pns.matches_wfh)) || [];
+    if(d.pns && wfhList.length > 0){
+      const activeWfh = wfhList.filter(m => m.fp_id && m.score > 0);
+      if(activeWfh.length > 0){
+        activeWfh.forEach(m => {
+          tbWfhPns.innerHTML += buildRow(m, 'PNS', 'wfh');
+        });
+        if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = `${activeWfh.length} tercatat WFH`;
+      } else {
+        tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Tidak ada pegawai PNS yang tercatat pada data WFH di rentang tanggal ini</td></tr>';
+        if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
+      }
+    } else if(d.pns && !d.has_wfh){
+      tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File WFH tidak diupload</td></tr>';
+      if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
+    } else if(!d.pns){
+      tbWfhPns.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PNS tidak diupload</td></tr>';
+      if(badgeCountPnsWfh) badgeCountPnsWfh.textContent = '0 data';
+    }
+  }
+
+  // 4. PPPK WFH
+  const tbWfhPppk = document.getElementById('tbWfhPppk');
+  const badgeCountPppkWfh = document.getElementById('badgeCountPppkWfh');
+  if(tbWfhPppk){
+    tbWfhPppk.innerHTML = '';
+    const wfhList = (d.pppk && (d.pppk.wfh || d.pppk.matches_wfh)) || [];
+    if(d.pppk && wfhList.length > 0){
+      const activeWfh = wfhList.filter(m => m.fp_id && m.score > 0);
+      if(activeWfh.length > 0){
+        activeWfh.forEach(m => {
+          tbWfhPppk.innerHTML += buildRow(m, 'PPPK', 'wfh');
+        });
+        if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = `${activeWfh.length} tercatat WFH`;
+      } else {
+        tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Tidak ada pegawai PPPK yang tercatat pada data WFH di rentang tanggal ini</td></tr>';
+        if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
+      }
+    } else if(d.pppk && !d.has_wfh){
+      tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">File WFH tidak diupload</td></tr>';
+      if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
+    } else if(!d.pppk){
+      tbWfhPppk.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:16px">Template PPPK tidak diupload</td></tr>';
+      if(badgeCountPppkWfh) badgeCountPppkWfh.textContent = '0 data';
+    }
+  }
+
+  // 5. Unmatched
+  const tbUnm = document.getElementById('tbUnm');
+  if(tbUnm){
+    tbUnm.innerHTML = '';
+    if(d.unmatched_fp && d.unmatched_fp.length > 0){
+      d.unmatched_fp.forEach(u => {
+        tbUnm.innerHTML += `
+          <tr>
+            <td style="font-weight:600;color:var(--accent2)">${u.fp_id}</td>
+            <td>${u.fp_name}</td>
+          </tr>
+        `;
+      });
+    } else {
+      tbUnm.innerHTML = '<tr><td colspan="2" style="color:var(--green);text-align:center;padding:20px">✅ Semua data absensi tercocokkan ke template!</td></tr>';
+    }
+  }
+
+  updateStats();
+}
+
+
+/* ── Decision Handling ── */
+
+function setDecision(tplType, source, row, choice, encName){
+  if(!userDecisions[tplType]) userDecisions[tplType] = {};
+  if(!userDecisions[tplType][row]) userDecisions[tplType][row] = { wfo: null, wfh: null };
+
+  const prev = userDecisions[tplType][row][source];
+  if(prev === choice){
+    userDecisions[tplType][row][source] = null;
+  } else {
+    userDecisions[tplType][row][source] = choice;
+  }
+
+  const empName = encName ? decodeURIComponent(encName) : null;
+  if(empName){
+    userDecisions[tplType][empName] = Object.assign({}, userDecisions[tplType][row]);
+  }
+
+  updateRowUI(tplType, source, row);
+  updateStats();
+  saveDecisionsToServer();
+
+  const cur = userDecisions[tplType][row][source];
+  const srcUpper = source.toUpperCase();
+  if(cur === true){
+    toast(`✅ ${srcUpper} baris #${row} dimasukkan`, 'success');
+  } else if(cur === false){
+    toast(`❌ ${srcUpper} baris #${row} diabaikan`, 'info');
+  } else {
+    toast(`Keputusan ${srcUpper} baris #${row} dinetralkan`, 'info');
+  }
+}
+
+
+/* ── Update Row UI ── */
+
+function updateRowUI(tplType, source, row){
+  const src = source.toLowerCase();
+  const SRC = source.toUpperCase();
+  const group = document.getElementById(`group_${SRC}_${tplType}_${row}`);
+  const statusEl = document.getElementById(`status_${SRC}_${tplType}_${row}`);
+  if(!group || !statusEl) return;
+
+  const rowDec = userDecisions[tplType] && userDecisions[tplType][row]
+    ? userDecisions[tplType][row]
+    : null;
+  const choice = rowDec ? rowDec[src] : null;
+
+  const btnInc = group.querySelector('.btn-rev-inc');
+  const btnIgn = group.querySelector('.btn-rev-ign');
+
+  if(choice === true){
+    if(btnInc) btnInc.classList.add('active');
+    if(btnIgn) btnIgn.classList.remove('active');
+    statusEl.innerHTML = '<span style="color:#059669;font-weight:700">✅ Masukkan</span>';
+  } else if(choice === false){
+    if(btnInc) btnInc.classList.remove('active');
+    if(btnIgn) btnIgn.classList.add('active');
+    statusEl.innerHTML = '<span style="color:var(--red);font-weight:700">❌ Diabaikan</span>';
+  } else {
+    if(btnInc) btnInc.classList.remove('active');
+    if(btnIgn) btnIgn.classList.remove('active');
+    statusEl.innerHTML = '<span style="color:var(--amber2);font-weight:600">⏳ Belum Dipilih</span>';
+  }
+}
+
+
+/* ── Bulk Decision (Seluruh Section 2) ── */
+
+function bulkDecisionAll(action){
+  if(!previewData) return;
+  let count = 0;
+
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
+
+    ['wfo', 'wfh'].forEach(src => {
+      const list = previewData[key][src] || (src === 'wfo' ? previewData[key].matches_fp : previewData[key].matches_wfh);
+      if(!list) return;
+
+      list.forEach(m => {
+        if(!m.fp_id) return;
+        if(!userDecisions[tplType][m.tpl_row]){
+          userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+        }
+
+        if(action === 'include_all'){
+          userDecisions[tplType][m.tpl_row][src] = true;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        } else if(action === 'ignore_all'){
+          userDecisions[tplType][m.tpl_row][src] = false;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        }
+      });
+    });
+  });
+
+  updateStats();
+  saveDecisionsToServer();
+
+  if(action === 'include_all'){
+    toast(`✅ Seluruh data di Section 2 (${count} data, termasuk <80%) berhasil dimasukkan!`, 'success');
+  } else {
+    toast(`❌ Seluruh data di Section 2 (${count} data) diatur untuk diabaikan!`, 'info');
+  }
+}
+
+
+/* ── Bulk Decision per Tab (WFO / WFH) ── */
+
+function bulkDecision(source, action){
+  if(!previewData) return;
+  const src = source.toLowerCase();
+  const SRC = source.toUpperCase();
+  let count = 0;
+
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    const list = previewData[key][src] || (src === 'wfo' ? previewData[key].matches_fp : previewData[key].matches_wfh);
+    if(!list) return;
+
+    if(!userDecisions[tplType]) userDecisions[tplType] = {};
+
+    list.forEach(m => {
+      if(!m.fp_id) return;
+      if(!userDecisions[tplType][m.tpl_row]){
+        userDecisions[tplType][m.tpl_row] = { wfo: null, wfh: null };
+      }
+
+      if(action === 'include_all'){
+        userDecisions[tplType][m.tpl_row][src] = true;
+        if(m.tpl_name){
+          userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+        }
+        updateRowUI(tplType, src, m.tpl_row);
+        count++;
+      } else if(action === 'choose_recommended'){
+        if(m.rec_level === 'high' || m.score >= 80){
+          userDecisions[tplType][m.tpl_row][src] = true;
+          if(m.tpl_name){
+            userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+          }
+          updateRowUI(tplType, src, m.tpl_row);
+          count++;
+        }
+      } else if(action === 'ignore_all'){
+        userDecisions[tplType][m.tpl_row][src] = false;
+        if(m.tpl_name){
+          userDecisions[tplType][m.tpl_name] = Object.assign({}, userDecisions[tplType][m.tpl_row]);
+        }
+        updateRowUI(tplType, src, m.tpl_row);
+        count++;
+      }
+    });
+  });
+
+  updateStats();
+  saveDecisionsToServer();
+
+  if(action === 'include_all'){
+    toast(`✅ Seluruh data ${SRC} (${count} data, termasuk <80%) berhasil dimasukkan!`, 'success');
+  } else if(action === 'choose_recommended'){
+    toast(`✅ ${count} data ${SRC} berstatus Sangat Cocok (≥80%) dipilih!`, 'success');
+  } else {
+    toast(`❌ Seluruh data ${SRC} (${count} data) diatur untuk diabaikan!`, 'info');
+  }
+}
+
+
+/* ── Save Decisions ── */
+
+function saveDecisionsToServer(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    fetch('/save-decisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decisions: userDecisions })
+    }).catch(e => console.warn('Sync decisions error:', e));
+  }, 250);
+}
+
+
+/* ── Statistics ── */
+
+function updateStats(){
+  if(!previewData) return;
+
+  let pnsFilled = 0;
+  let pppkFilled = 0;
+  let pendingWfo = 0;
+  let pendingWfh = 0;
+  let totalEmployees = 0;
+
+  ['PNS', 'PPPK'].forEach(tplType => {
+    const key = tplType.toLowerCase();
+    if(!previewData[key]) return;
+    const wfoList = previewData[key].wfo || previewData[key].matches_fp || [];
+    const wfhList = previewData[key].wfh || previewData[key].matches_wfh || [];
+
+    totalEmployees += previewData[key].total || wfoList.length;
+
+    const filledRows = new Set();
+
+    wfoList.forEach(m => {
+      if(!m.fp_id) return;
+      const dec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row];
+      if(dec && dec.wfo === true){
+        filledRows.add(m.tpl_row);
+      } else if(!dec || dec.wfo === null || dec.wfo === undefined){
+        pendingWfo++;
+      }
+    });
+
+    wfhList.forEach(m => {
+      if(!m.fp_id || m.score === 0) return;
+      const dec = userDecisions[tplType] && userDecisions[tplType][m.tpl_row];
+      if(dec && dec.wfh === true){
+        filledRows.add(m.tpl_row);
+      } else if(!dec || dec.wfh === null || dec.wfh === undefined){
+        pendingWfh++;
+      }
+    });
+
+    if(tplType === 'PNS'){
+      pnsFilled = filledRows.size;
+    } else {
+      pppkFilled = filledRows.size;
+    }
+  });
+
+  const totalPending = pendingWfo + pendingWfh;
+  const totalUnmatched = (previewData.unmatched_fp ? previewData.unmatched_fp.length : 0);
+
+  const xAllEl = document.getElementById('xAll');
+  if(xAllEl) xAllEl.textContent = totalEmployees;
+
+  const xPnsEl = document.getElementById('xPns');
+  if(xPnsEl) xPnsEl.textContent = pnsFilled;
+
+  const xPppkEl = document.getElementById('xPppk');
+  if(xPppkEl) xPppkEl.textContent = pppkFilled;
+
+  const xRevEl = document.getElementById('xRev');
+  if(xRevEl) xRevEl.textContent = totalPending;
+
+  const xUnmEl = document.getElementById('xUnm');
+  if(xUnmEl) xUnmEl.textContent = totalUnmatched;
+
+  // Update Toolbar Section 2 (Global), WFO & WFH
+  const barSec2 = document.getElementById('barSec2');
+  if(barSec2){
+    barSec2.style.display = totalEmployees > 0 ? 'flex' : 'none';
+  }
+
+  const barWfo = document.getElementById('barWfo');
+  const countWfoEl = document.getElementById('countWfo');
+  if(barWfo){
+    if(countWfoEl) countWfoEl.textContent = pendingWfo;
+    const hasWfoData = previewData && ((previewData.pns && previewData.pns.wfo && previewData.pns.wfo.length > 0) ||
+                                       (previewData.pppk && previewData.pppk.wfo && previewData.pppk.wfo.length > 0));
+    barWfo.style.display = hasWfoData ? 'flex' : 'none';
+  }
+
+  const barWfh = document.getElementById('barWfh');
+  const countWfhEl = document.getElementById('countWfh');
+  if(barWfh){
+    if(countWfhEl) countWfhEl.textContent = pendingWfh;
+    const hasWfhData = previewData && ((previewData.pns && previewData.pns.wfh && previewData.pns.wfh.length > 0) ||
+                                       (previewData.pppk && previewData.pppk.wfh && previewData.pppk.wfh.length > 0));
+    barWfh.style.display = hasWfhData ? 'flex' : 'none';
+  }
+
+  // Update Recap Download
+  const dlRecap = document.getElementById('dlRecap');
+  if(dlRecap){
+    dlRecap.style.display = 'block';
+    const totalFilled = pnsFilled + pppkFilled;
+    if(totalFilled > 0){
+      dlRecap.innerHTML = `✨ <strong>Siap Download:</strong> <strong>${totalFilled} pegawai</strong> (${pnsFilled} PNS, ${pppkFilled} PPPK) telah dikonfirmasi untuk diisi ke file Excel.`;
+    } else {
+      dlRecap.innerHTML = `⚠️ <strong>Perhatian:</strong> Belum ada data pegawai yang dipilih (0 dipilih). Jika didownload sekarang, seluruh sel jam masuk & pulang akan dibiarkan kosong.`;
+    }
+  }
+}
+
+
+/* ── Download ── */
+
+function doDownload(){
+  const startDayEl = document.getElementById('startDay');
+  const endDayEl = document.getElementById('endDay');
+  const startDay = startDayEl ? parseInt(startDayEl.value, 10) : 1;
+  const endDay = endDayEl ? parseInt(endDayEl.value, 10) : 31;
+
+  const btn = document.getElementById('btnDownload');
+  const sp = document.getElementById('spDl');
+
+  btn.disabled = true;
+  sp.style.display = 'block';
+
+  fetch('/process', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      decisions: userDecisions,
+      start_day: startDay,
+      end_day: endDay
+    })
+  })
+  .then(async r => {
+    if(!r.ok){
+      const e = await r.json();
+      throw new Error(e.error || 'Server error');
+    }
+    return r.blob();
+  })
+  .then(blob => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Absensi_Bersih.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    goStep(3);
+    toast('✅ File Excel berhasil didownload dengan keputusan Anda!', 'success');
+  })
+  .catch(e => {
+    btn.disabled = false;
+    sp.style.display = 'none';
+    toast('Gagal: ' + e.message, 'error');
+  });
+}
+
+
+/* ── Reset ── */
+
+function resetAll(){
+  fpOk = false;
+  pnsOk = false;
+  pppkOk = false;
+  wfhOk = false;
+  selectedWfhFile = null;
+  previewData = null;
+  userDecisions = { PNS: {}, PPPK: {} };
+  saveDecisionsToServer();
+
+  ['fFp', 'fPns', 'fPppk', 'fWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+
+  const startDayEl = document.getElementById('startDay');
+  if(startDayEl) startDayEl.value = '1';
+  const endDayEl = document.getElementById('endDay');
+  if(endDayEl) endDayEl.value = '31';
+
+  ['iFp', 'iPns', 'iPppk', 'iWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('show', 'ok');
+  });
+
+  ['zFp', 'zPns', 'zPppk', 'zWfh'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('done', 'uploaded');
+  });
+
+  const pFp = document.getElementById('pFp');
+  if(pFp) pFp.style.display = 'none';
+  const pWfh = document.getElementById('pWfh');
+  if(pWfh) pWfh.style.display = 'none';
+
+  const btnPreview = document.getElementById('btnPreview');
+  if(btnPreview) btnPreview.disabled = true;
+
+  goStep(1);
+  showSec('secUpload');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('Siap untuk file baru!', 'info');
+}
+
+</script>
+
+</body>
+</html>

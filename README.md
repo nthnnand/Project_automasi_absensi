@@ -276,15 +276,14 @@ Antarmuka web dibangun dengan konsep **Single-Page Application (SPA)** bertema m
 
 
 ### Cara Menjalankan Aplikasi
-1. Buka folder proyek `absensi_cleaner`.
-2. Klik dua kali pada file:
-   ```cmd
-   JALANKAN.bat
-   ```
-3. Script batch akan secara otomatis:
-   - Mematikan proses python server lama yang masih tertinggal di background.
-   - Menjalankan server Flask di port `5000`.
-   - Membuka browser secara otomatis ke alamat `http://localhost:5000`.
+
+#### A. Pengguna Windows
+* Cukup klik dua kali file **`JALANKAN.bat`** (atau jalankan `python jalankan.py`).
+
+#### B. Pengguna Mac (macOS)
+* Cukup klik dua kali file **`JALANKAN_MAC.command`** dari Finder (atau ketik `python3 jalankan.py` di Terminal).
+
+> Skrip peluncur akan secara otomatis memeriksa dependensi, mencari port yang bebas (menghindari bentrok AirPlay di Mac), membuka browser default, dan menyalakan aplikasi.
 
 ### Langkah Penggunaan di Browser:
 1. **Upload**: Drag-and-drop berkas absensi dari mesin fingerprint (`.xls`/`.xlsx`) dan berkas template instansi (`PNS` dan/atau `PPPK`).
